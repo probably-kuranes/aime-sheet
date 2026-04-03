@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adventures in Middle-earth</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-height: 100vh; }
+
+#app-header {
+  background: #2c1f0f; color: #c8a96e;
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+#app-header h1 { font-size: 18px; letter-spacing: 0.05em; font-weight: normal; }
+#char-select {
+  background: #1a1208; color: #c8a96e;
+  border: 1px solid #c8a96e66; border-radius: 4px;
+  padding: 5px 10px; font-size: 14px; font-family: Georgia, serif;
+}
+#save-btn {
+  background: #c8a96e; color: #2c1f0f; border: none; border-radius: 4px;
+  padding: 6px 14px; font-size: 13px; cursor: pointer; font-family: Georgia, serif; margin-left: auto;
+}
+#save-btn:hover { background: #dfc08a; }
+#save-status { font-size: 11px; color: #c8a96e88; }
+
+#sheet { max-width: 1100px; margin: 12px auto; padding: 0 12px 40px; }
+
+.s-top {
+  background: #3d2a10; color: #c8a96e; text-align: center;
+  padding: 8px; font-size: 15px; letter-spacing: 0.08em;
+  border-radius: 4px 4px 0 0; margin-bottom: 8px;
+}
+
+.sec { border: 1px solid #c8a96e44; border-radius: 4px; padding: 8px; margin-bottom: 8px; background: #faf8f4; }
+.sec-lbl {
+  font-size: 9px; font-weight: bold; color: #7a5c2e; text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 6px; border-bottom: 1px solid #c8a96e33; padding-bottom: 3px;
+}
+
+.row { display: flex; gap: 6px; margin-bottom: 5px; flex-wrap: wrap; align-items: flex-end; }
+.f { display: flex; flex-direction: column; flex: 1; min-width: 80px; }
+.f span { font-size: 9px; color: #7a5c2e; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.f input[type=text], .f select, .f textarea {
+  border: 1px solid #c8a96e77; border-radius: 3px; padding: 3px 6px;
+  font-size: 12px; background: white; color: #2c1f0f; font-family: inherit; width: 100%;
+}
+.f textarea { resize: vertical; min-height: 60px; }
+.f-n { max-width: 70px; }
+.f-w { flex: 3; }
+
+.body { display: flex; gap: 8px; align-items: flex-start; }
+.col-l { width: 240px; flex-shrink: 0; }
+.col-r { flex: 1; min-width: 0; }
+
+.ab-grid { display: flex; flex-wrap: wrap; gap: 5px; justify-content: space-around; }
+.ab { display: flex; flex-direction: column; align-items: center; width: 56px; }
+.ab-name { font-size: 9px; color: #7a5c2e; text-transform: uppercase; text-align: center; margin-bottom: 2px; }
+.ab-score {
+  width: 46px; text-align: center; font-size: 20px; font-weight: bold;
+  border: 2px solid #c8a96e; border-radius: 4px; padding: 2px;
+  background: white; color: #2c1f0f; font-family: inherit;
+}
+.ab-mod { font-size: 13px; font-weight: bold; color: #2c1f0f; margin-top: 2px; }
+
+.shadow-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 6px;
+  background: #f0e8d8; border: 1px solid #c8a96e; border-radius: 4px; padding: 5px 8px;
+}
+.shadow-row span { font-size: 10px; color: #7a5c2e; }
+.shadow-row input {
+  width: 40px; text-align: center; border: 1px solid #c8a96e77;
+  border-radius: 3px; padding: 2px 4px; font-size: 13px; background: white; color: #2c1f0f;
+}
+
+.dmg-panel { background: #f5f0e8; }
+.dmg-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; border-bottom: 1px dotted #c8a96e33; font-size: 11px; }
+.dmg-lbl { color: #5a4020; flex: 1; }
+.dmg-val { font-weight: bold; font-size: 13px; color: #2c1f0f; min-width: 32px; text-align: right; }
+.dmg-fury .dmg-lbl { color: #8b1a1a; }
+.dmg-fury .dmg-val { color: #8b1a1a; }
+
+.fury-box { background: #ede0c8; border-radius: 3px; padding: 6px; margin: 5px 0; }
+.fury-toggle { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.fury-toggle input { width: 18px; height: 18px; cursor: pointer; }
+.fury-lbl { font-size: 13px; font-weight: bold; color: #8b1a1a; }
+.fury-inputs { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; color: #5a4020; align-items: center; }
+.fury-inputs input {
+  width: 32px; text-align: center; border: 1px solid #c8a96e77;
+  border-radius: 3px; padding: 2px 3px; font-size: 12px; background: white; color: #2c1f0f;
+}
+
+.style-sel {
+  width: 100%; font-size: 11px; border: 1px solid #c8a96e77;
+  border-radius: 3px; padding: 3px 4px; background: white; color: #2c1f0f;
+  margin-top: 5px; font-family: inherit;
+}
+
+.save-row, .skill-row { display: flex; align-items: center; gap: 4px; padding: 2px 0; font-size: 11px; }
+.save-row { font-size: 12px; }
+.save-name, .skill-name { flex: 1; }
+.skill-attr { font-size: 9px; color: #999; width: 28px; }
+.bonus { font-weight: bold; width: 28px; text-align: right; color: #2c1f0f; }
+.skill-legend { font-size: 9px; color: #aaa; float: right; font-weight: normal; text-transform: none; letter-spacing: 0; }
+.thieves-sep { margin-top: 4px; padding-top: 4px; border-top: 1px dotted #c8a96e44; }
+.passive { margin-top: 5px; font-size: 11px; color: #7a5c2e; padding-top: 4px; border-top: 1px solid #c8a96e33; }
+
+.roll-btn {
+  background: #2c1f0f; color: #c8a96e; border: none; border-radius: 3px;
+  padding: 3px 8px; font-size: 10px; cursor: pointer; white-space: nowrap; font-family: inherit;
+}
+.roll-btn:hover { background: #4a3520; }
+.roll-btn:active { transform: scale(0.97); }
+
+.atk-grid { display: grid; grid-template-columns: 2fr 68px 2fr 54px; gap: 4px; margin-bottom: 4px; }
+.atk-hdr { font-size: 9px; color: #7a5c2e; text-transform: uppercase; }
+.atk-grid input {
+  border: 1px solid #c8a96e77; border-radius: 3px; padding: 3px 5px;
+  font-size: 12px; background: white; color: #2c1f0f; width: 100%; font-family: inherit;
+}
+.atk-hint { font-size: 9px; color: #999; font-style: italic; margin-bottom: 5px; }
+
+.res-row {
+  display: flex; align-items: center; gap: 5px; padding: 4px 0;
+  border-bottom: 1px dotted #c8a96e33; flex-wrap: wrap; font-size: 11px;
+}
+.res-lbl { flex: 1; min-width: 140px; }
+.res-box {
+  width: 34px; text-align: center; border: 1px solid #c8a96e77;
+  border-radius: 3px; padding: 2px 4px; font-size: 12px; background: white; color: #2c1f0f;
+}
+.res-tiny {
+  width: 28px; text-align: center; border: 1px solid #c8a96e77;
+  border-radius: 3px; padding: 2px 3px; font-size: 11px; background: white; color: #2c1f0f;
+}
+
+.death-row { display: flex; align-items: center; gap: 5px; font-size: 11px; margin-top: 5px; flex-wrap: wrap; }
+
+#roll-result {
+  position: fixed; bottom: 20px; right: 20px;
+  background: #2c1f0f; color: #c8a96e;
+  border: 2px solid #c8a96e; border-radius: 6px;
+  padding: 12px 16px; min-width: 200px; max-width: 280px;
+  font-family: Georgia, serif; z-index: 999; display: none;
+}
+#roll-result h3 { font-size: 13px; margin-bottom: 6px; color: #e8c88e; }
+#roll-result .rr-type { font-size: 11px; opacity: 0.7; margin-bottom: 8px; }
+#roll-result .rr-total { font-size: 28px; font-weight: bold; color: #fff; }
+#roll-result .rr-dmg { font-size: 20px; font-weight: bold; color: #e8a870; margin-top: 4px; }
+#roll-result .rr-detail { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+#roll-result .rr-discord { font-size: 10px; margin-top: 8px; opacity: 0.7; }
+#roll-close {
+  float: right; background: none; border: none; color: #c8a96e;
+  cursor: pointer; font-size: 14px; padding: 0; font-family: inherit;
+}
+</style>
+</head>
+<body>
+
+<div id="app-header">
+  <h1>Adventures in Middle-earth</h1>
+  <select id="char-select" onchange="switchChar(this.value)">
+    <option value="ailean">Ailean, Herald of the Gate (Andy — Warden)</option>
+    <option value="aerandir">Aerandir the Ancient (Alb — Scholar)</option>
+    <option value="bodo">Bodo Grubb (Dave A — Burglar)</option>
+    <option value="bram">Bram (Franziska — Slayer)</option>
+    <option value="dendarian">Dendarian (Jason — Warrior)</option>
+    <option value="midril">Midril GreenBlossom (Lucia — Wanderer)</option>
+  </select>
+  <button id="save-btn" onclick="saveChar()">Save character</button>
+  <span id="save-status"></span>
+</div>
+
+<div id="sheet">
+  <div class="s-top">Adventures in Middle-earth &mdash; Character Sheet</div>
+
+  <div class="sec">
+    <div class="row">
+      <div class="f f-w"><span>Character name</span><input type="text" id="f_character_name"/></div>
+      <div class="f"><span>Class</span><input type="text" id="f_class"/></div>
+      <div class="f f-n"><span>Level</span><input type="text" id="f_level" value="10" oninput="recalc()"/></div>
+      <div class="f f-n"><span>Prof bonus</span><input type="text" id="f_prof" value="+4" oninput="recalc()"/></div>
+    </div>
+    <div class="row">
+      <div class="f"><span>Culture</span><input type="text" id="f_culture"/></div>
+      <div class="f"><span>Background</span><input type="text" id="f_background"/></div>
+      <div class="f"><span>Shadow weakness</span><input type="text" id="f_shadow_weakness"/></div>
+      <div class="f"><span>Standard of living</span><input type="text" id="f_standard_of_living"/></div>
+      <div class="f"><span>Player</span><input type="text" id="f_player"/></div>
+    </div>
+    <div class="row">
+      <div class="f"><span>Distinctive quality</span><input type="text" id="f_distinctive_quality"/></div>
+      <div class="f"><span>Speciality</span><input type="text" id="f_speciality"/></div>
+      <div class="f"><span>Hope</span><input type="text" id="f_hope"/></div>
+      <div class="f"><span>Despair</span><input type="text" id="f_despair"/></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="col-l">
+
+      <div class="sec">
+        <div class="sec-lbl">Ability scores</div>
+        <div class="ab-grid">
+          <div class="ab"><div class="ab-name">Strength</div><input class="ab-score" id="f_str" value="10" oninput="recalc()"/><div class="ab-mod" id="m_str">+0</div></div>
+          <div class="ab"><div class="ab-name">Dexterity</div><input class="ab-score" id="f_dex" value="10" oninput="recalc()"/><div class="ab-mod" id="m_dex">+0</div></div>
+          <div class="ab"><div class="ab-name">Constitution</div><input class="ab-score" id="f_con" value="10" oninput="recalc()"/><div class="ab-mod" id="m_con">+0</div></div>
+          <div class="ab"><div class="ab-name">Intelligence</div><input class="ab-score" id="f_int" value="10" oninput="recalc()"/><div class="ab-mod" id="m_int">+0</div></div>
+          <div class="ab"><div class="ab-name">Wisdom</div><input class="ab-score" id="f_wis" value="10" oninput="recalc()"/><div class="ab-mod" id="m_wis">+0</div></div>
+          <div class="ab"><div class="ab-name">Charisma</div><input class="ab-score" id="f_cha" value="10" oninput="recalc()"/><div class="ab-mod" id="m_cha">+0</div></div>
+        </div>
+        <div class="shadow-row">
+          <span>Shadow:</span><input id="f_shadow" value="0"/>
+          <span>Permanent:</span><input id="f_shadow_perm" value="0"/>
+        </div>
+      </div>
+
+      <div class="sec dmg-panel">
+        <div class="sec-lbl">Damage bonuses (auto-calculated)</div>
+        <div class="dmg-row"><span class="dmg-lbl">Melee (Str)</span><span class="dmg-val" id="d_str">+0</span></div>
+        <div class="dmg-row"><span class="dmg-lbl">Finesse / ranged (Dex)</span><span class="dmg-val" id="d_dex">+0</span></div>
+        <div class="dmg-row"><span class="dmg-lbl">Duelling (one-hand +2)</span><span class="dmg-val" id="d_duel">+0</span></div>
+        <div class="dmg-row dmg-fury"><span class="dmg-lbl">Fury (Str + fury bonus)</span><span class="dmg-val" id="d_fury">+0</span></div>
+        <div class="fury-box">
+          <div class="fury-toggle">
+            <input type="checkbox" id="fury_active" onchange="recalc()"/>
+            <span class="fury-lbl">Battle-fury active</span>
+          </div>
+          <div class="fury-inputs">
+            <span>Fury dmg bonus:</span>
+            <input id="fury_bonus" value="2" oninput="recalc()"/>
+            <span>Furies left:</span>
+            <input id="fury_cur" value="4" style="width:28px"/>
+            <span>/</span>
+            <input id="fury_max" value="4" style="width:28px"/>
+          </div>
+        </div>
+        <div class="sec-lbl" style="margin-top:6px">Fighting style</div>
+        <select class="style-sel" id="fighting_style" onchange="recalc()">
+          <option value="none">None</option>
+          <option value="archery">Archery (+2 ranged attack rolls)</option>
+          <option value="defence">Defence (+1 AC)</option>
+          <option value="duelling">Duelling (+2 damage one-hand melee)</option>
+          <option value="gwf">Great weapon fighting</option>
+          <option value="twf">Two-weapon fighting</option>
+          <option value="protection">Protection</option>
+        </select>
+        <div style="font-size:9px;color:#7a5c2e;margin-top:5px;font-style:italic;">In attack damage fields use: {str} {dex} {fury} {duel}</div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Saving throws</div>
+        <div id="saves-container"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Skills <span class="skill-legend">prof &nbsp; exp</span></div>
+        <div id="skills-container"></div>
+        <div class="passive">Passive perception: <strong id="passive_perc">10</strong></div>
+      </div>
+
+    </div>
+
+    <div class="col-r">
+
+      <div class="sec">
+        <div class="sec-lbl">Combat</div>
+        <div class="row">
+          <div class="f f-n"><span>AC</span><input type="text" id="f_ac" value="10"/></div>
+          <div class="f f-n"><span>Initiative</span><span id="f_init" style="font-size:14px;font-weight:bold;color:#2c1f0f;display:block;padding:3px 0;">+0</span></div>
+          <div class="f f-n"><span>Speed</span><input type="text" id="f_speed" value="30 ft"/></div>
+          <div class="f f-n"><span>Inspiration</span><input type="checkbox" id="f_inspiration" style="width:18px;height:18px;margin-top:4px;"/></div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <span>Armour worn</span>
+            <select id="f_armour">
+              <option value="0">Unarmoured (10+Dex)</option>
+              <option value="1">Leather jerkin (11+Dex)</option>
+              <option value="2">Leather corslet (12+Dex)</option>
+              <option value="3">Hide (12+Dex max 2)</option>
+              <option value="4">Corslet of mail (13+Dex max 2)</option>
+              <option value="5">Scale hauberk (14+Dex max 2)</option>
+              <option value="6">Ring-mail (14 flat)</option>
+              <option value="7">Heavy mail (16 flat, Str 13 req)</option>
+            </select>
+          </div>
+          <div class="f">
+            <span>Shield</span>
+            <select id="f_shield">
+              <option value="0">None</option>
+              <option value="2">Shield (+2)</option>
+              <option value="4">Great shield (+4)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f"><span>Max HP</span><input type="text" id="f_hp_max" value="0"/></div>
+          <div class="f"><span>Current HP</span><input type="text" id="f_hp_cur" value="0"/></div>
+          <div class="f"><span>Temp HP</span><input type="text" id="f_hp_temp" value="0"/></div>
+        </div>
+        <div class="row">
+          <div class="f"><span>Hit dice total</span><input type="text" id="f_hd" placeholder="e.g. 10d8"/></div>
+          <div class="f"><span>HD remaining</span><input type="text" id="f_hd_rem" value="0"/></div>
+        </div>
+        <div class="death-row">
+          <span>Death saves &mdash; Successes:</span>
+          <input type="checkbox" id="ds1"/><input type="checkbox" id="ds2"/><input type="checkbox" id="ds3"/>
+          <span>Failures:</span>
+          <input type="checkbox" id="df1"/><input type="checkbox" id="df2"/><input type="checkbox" id="df3"/>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Attacks</div>
+        <div class="atk-grid atk-hdr">
+          <span>Weapon</span><span>Atk bonus</span><span>Damage — use {str} {dex} {fury} {duel}</span><span></span>
+        </div>
+        <div class="atk-hint">Example: name "Broadsword", bonus "+7", damage "1d8+{str}"</div>
+        <div id="attacks-container"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Class resources</div>
+        <div class="res-row">
+          <span class="res-lbl">Warden's gift &mdash; uses</span>
+          <input class="res-box" id="wg_cur" value="0"/>/<input class="res-box" id="wg_max" value="0"/>
+          <span style="font-size:10px;color:#7a5c2e;">Die: <input class="res-tiny" id="wg_die" value="d6"/></span>
+          <button class="roll-btn" onclick="rollDie('wg_die', &quot;Warden's Gift&quot;)">Roll gift die</button>
+        </div>
+        <div class="res-row">
+          <span class="res-lbl">Healing dice (Scholar) &mdash; pool</span>
+          <input class="res-box" id="hd_cur" value="0"/>/<input class="res-box" id="hd_max" value="0"/>
+          <button class="roll-btn" onclick="rollHealDie()">Roll heal die</button>
+        </div>
+        <div class="res-row">
+          <span class="res-lbl">Second wind (Warrior)</span>
+          <input type="checkbox" id="sw_used"/>
+          <span style="font-size:10px;color:#7a5c2e;">Used</span>
+          <button class="roll-btn" onclick="rollSecondWind()">Roll</button>
+        </div>
+        <div class="res-row">
+          <span class="res-lbl">Action surge (Warrior)</span>
+          <input type="checkbox" id="as_used"/>
+          <span style="font-size:10px;color:#7a5c2e;">Used</span>
+        </div>
+        <div class="res-row">
+          <span class="res-lbl">Sneak attack</span>
+          <input class="res-box" id="sneak_dice" value="1"/>
+          <span style="font-size:10px;color:#7a5c2e;">d6</span>
+          <button class="roll-btn" onclick="rollSneak()">Roll</button>
+        </div>
+        <div class="res-row">
+          <span class="res-lbl">Mortal wound (Slayer)</span>
+          <input class="res-box" id="mw_dice" value="0"/>
+          <span style="font-size:10px;color:#7a5c2e;">d12</span>
+          <button class="roll-btn" onclick="rollMortal()">Roll</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Features, traits &amp; virtues</div>
+        <div class="f"><textarea id="f_features" style="min-height:100px" placeholder="Class features, subclass abilities, cultural virtues, background features..."></textarea></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Equipment</div>
+        <div class="f"><textarea id="f_equipment" placeholder="Carried gear, armour, weapons, coins, special items..."></textarea></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Other proficiencies &amp; languages</div>
+        <div class="f"><textarea id="f_proficiencies" placeholder="Tool proficiencies, languages, weapon/armour proficiencies..."></textarea></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="roll-result">
+  <button id="roll-close" onclick="document.getElementById('roll-result').style.display='none'">&#x2715;</button>
+  <div class="rr-type" id="rr-type"></div>
+  <h3 id="rr-char"></h3>
+  <div id="rr-atk-line" style="display:none">
+    <div style="font-size:11px;color:#c8a96e88;">Attack roll</div>
+    <div class="rr-total" id="rr-atk"></div>
+  </div>
+  <div id="rr-roll-line">
+    <div style="font-size:11px;color:#c8a96e88;">Result</div>
+    <div class="rr-total" id="rr-total"></div>
+  </div>
+  <div id="rr-dmg-line" style="display:none">
+    <div style="font-size:11px;color:#c8a96e88;margin-top:6px;">Damage</div>
+    <div class="rr-dmg" id="rr-dmg"></div>
+  </div>
+  <div class="rr-detail" id="rr-detail"></div>
+  <div class="rr-discord" id="rr-discord"></div>
+</div>
+
+<script>
+var PROXY_URL = 'https://aime-proxy-production-df24.up.railway.app/roll';
+
+var SAVES = [
+  {id:'str', name:'Strength',    ab:'str'},
+  {id:'dex', name:'Dexterity',   ab:'dex'},
+  {id:'con', name:'Constitution',ab:'con'},
+  {id:'int', name:'Intelligence',ab:'int'},
+  {id:'wis', name:'Wisdom',      ab:'wis'},
+  {id:'cor', name:'Corruption',  ab:'con'},
+  {id:'cha', name:'Charisma',    ab:'cha'}
+];
+
+var SKILLS = [
+  {id:'acrobatics',      name:'Acrobatics',      ab:'dex'},
+  {id:'animal_handling', name:'Animal handling',  ab:'wis'},
+  {id:'athletics',       name:'Athletics',        ab:'str'},
+  {id:'deception',       name:'Deception',        ab:'cha'},
+  {id:'history',         name:'History',          ab:'int'},
+  {id:'insight',         name:'Insight',          ab:'wis'},
+  {id:'intimidation',    name:'Intimidation',     ab:'cha'},
+  {id:'investigation',   name:'Investigation',    ab:'int'},
+  {id:'lore',            name:'Lore',             ab:'int'},
+  {id:'medicine',        name:'Medicine',         ab:'wis'},
+  {id:'nature',          name:'Nature',           ab:'int'},
+  {id:'perception',      name:'Perception',       ab:'wis'},
+  {id:'performance',     name:'Performance',      ab:'cha'},
+  {id:'persuasion',      name:'Persuasion',       ab:'cha'},
+  {id:'riddle',          name:'Riddle',           ab:'int'},
+  {id:'shadowlore',      name:'Shadow-lore',      ab:'int'},
+  {id:'sleight',         name:'Sleight of hand',  ab:'dex'},
+  {id:'stealth',         name:'Stealth',          ab:'dex'},
+  {id:'survival',        name:'Survival',         ab:'wis'},
+  {id:'traditions',      name:'Traditions',       ab:'int'},
+  {id:'thieves_tools',   name:"Thieves' tools",   ab:'dex', sep:true}
+];
+
+var NUM_ATTACKS = 4;
+var currentChar = 'ailean';
+
+function getAbMod(ab) {
+  var el = document.getElementById('f_' + ab);
+  var score = parseInt(el ? el.value : 10) || 10;
+  return Math.floor((score - 10) / 2);
+}
+
+function getProf() {
+  var s = (document.getElementById('f_prof').value || '+4').replace('+','');
+  return parseInt(s) || 4;
+}
+
+function fmt(n) { return (n >= 0 ? '+' : '') + n; }
+
+function buildSaves() {
+  var c = document.getElementById('saves-container');
+  c.innerHTML = '';
+  SAVES.forEach(function(s) {
+    var row = document.createElement('div');
+    row.className = 'save-row';
+    row.innerHTML =
+      '<input type="checkbox" id="sp_' + s.id + '" onchange="recalc()" style="width:14px;height:14px;flex-shrink:0"/>' +
+      '<span class="save-name">' + s.name + '</span>' +
+      '<span class="bonus" id="sv_' + s.id + '">+0</span>' +
+      '<button class="roll-btn" onclick="rollSave(\'' + s.id + '\',\'' + s.name + '\')">Roll</button>';
+    c.appendChild(row);
+  });
+}
+
+function buildSkills() {
+  var c = document.getElementById('skills-container');
+  c.innerHTML = '';
+  SKILLS.forEach(function(sk) {
+    var row = document.createElement('div');
+    row.className = 'skill-row' + (sk.sep ? ' thieves-sep' : '');
+    var abLabel = sk.ab.charAt(0).toUpperCase() + sk.ab.slice(0,3);
+    row.innerHTML =
+      '<input type="checkbox" id="skp_' + sk.id + '" onchange="recalc()" style="width:13px;height:13px;flex-shrink:0"/>' +
+      '<input type="checkbox" id="ske_' + sk.id + '" onchange="recalc()" style="width:13px;height:13px;flex-shrink:0"/>' +
+      '<span class="skill-name">' + sk.name + '</span>' +
+      '<span class="skill-attr">(' + abLabel + ')</span>' +
+      '<span class="bonus" id="skv_' + sk.id + '">+0</span>' +
+      '<button class="roll-btn" onclick="rollSkill(\'' + sk.id + '\',\'' + sk.name + '\')">Roll</button>';
+    c.appendChild(row);
+  });
+}
+
+function buildAttacks() {
+  var c = document.getElementById('attacks-container');
+  c.innerHTML = '';
+  for (var i = 1; i <= NUM_ATTACKS; i++) {
+    var row = document.createElement('div');
+    row.className = 'atk-grid';
+    row.innerHTML =
+      '<input type="text" id="atk' + i + '_name" placeholder="Weapon name"/>' +
+      '<input type="text" id="atk' + i + '_bonus" placeholder="+0"/>' +
+      '<input type="text" id="atk' + i + '_dmg" placeholder="1d8+{str}"/>' +
+      '<button class="roll-btn" onclick="rollAttack(' + i + ')">Roll</button>';
+    c.appendChild(row);
+  }
+}
+
+function recalc() {
+  var abs = {
+    str: getAbMod('str'), dex: getAbMod('dex'), con: getAbMod('con'),
+    int: getAbMod('int'), wis: getAbMod('wis'), cha: getAbMod('cha')
+  };
+
+  ['str','dex','con','int','wis','cha'].forEach(function(ab) {
+    var el = document.getElementById('m_' + ab);
+    if (el) el.textContent = fmt(abs[ab]);
+  });
+
+  var initEl = document.getElementById('f_init');
+  if (initEl) initEl.textContent = fmt(abs.dex);
+
+  var prof = getProf();
+  var style = document.getElementById('fighting_style').value;
+  var furyOn = document.getElementById('fury_active').checked;
+  var furyBonus = parseInt(document.getElementById('fury_bonus').value) || 2;
+
+  document.getElementById('d_str').textContent  = fmt(abs.str);
+  document.getElementById('d_dex').textContent  = fmt(abs.dex);
+  document.getElementById('d_duel').textContent = fmt(abs.str + (style === 'duelling' ? 2 : 0));
+  document.getElementById('d_fury').textContent = fmt(abs.str + (furyOn ? furyBonus : 0));
+
+  SAVES.forEach(function(s) {
+    var base = abs[s.ab] || 0;
+    var profEl = document.getElementById('sp_' + s.id);
+    var hasProf = profEl && profEl.checked;
+    var total = base + (hasProf ? prof : 0);
+    var el = document.getElementById('sv_' + s.id);
+    if (el) el.textContent = fmt(total);
+  });
+
+  var percBonus = 0;
+  SKILLS.forEach(function(sk) {
+    var base = abs[sk.ab] || 0;
+    var profEl = document.getElementById('skp_' + sk.id);
+    var expEl  = document.getElementById('ske_' + sk.id);
+    var hasProf = profEl && profEl.checked;
+    var hasExp  = expEl  && expEl.checked;
+    var bonus = base;
+    if (hasExp) bonus += prof * 2;
+    else if (hasProf) bonus += prof;
+    var el = document.getElementById('skv_' + sk.id);
+    if (el) el.textContent = fmt(bonus);
+    if (sk.id === 'perception') percBonus = bonus;
+  });
+
+  var ppEl = document.getElementById('passive_perc');
+  if (ppEl) ppEl.textContent = 10 + percBonus;
+}
+
+function rollD(sides) { return Math.floor(Math.random() * sides) + 1; }
+
+function parseDamage(expr) {
+  var abs = {
+    str: getAbMod('str'), dex: getAbMod('dex'), con: getAbMod('con'),
+    int: getAbMod('int'), wis: getAbMod('wis'), cha: getAbMod('cha')
+  };
+  var style = document.getElementById('fighting_style').value;
+  var furyOn = document.getElementById('fury_active').checked;
+  var furyBonus = parseInt(document.getElementById('fury_bonus').value) || 2;
+  var duelBonus = abs.str + (style === 'duelling' ? 2 : 0);
+  var furyTotal = abs.str + (furyOn ? furyBonus : 0);
+
+  expr = expr.replace(/\{str\}/g,  abs.str);
+  expr = expr.replace(/\{dex\}/g,  abs.dex);
+  expr = expr.replace(/\{fury\}/g, furyTotal);
+  expr = expr.replace(/\{duel\}/g, duelBonus);
+
+  var total = 0;
+  var parts = [];
+  var re = /([+-]?\s*\d+)d(\d+)|([+-]?\s*\d+)/g;
+  var m;
+  while ((m = re.exec(expr)) !== null) {
+    if (m[1] !== undefined && m[2] !== undefined) {
+      var n = parseInt(m[1]);
+      var s = parseInt(m[2]);
+      var sub = 0;
+      for (var i = 0; i < Math.abs(n); i++) sub += rollD(s);
+      if (n < 0) sub = -sub;
+      total += sub;
+      parts.push(Math.abs(n) + 'd' + s + '=' + sub);
+    } else if (m[3] !== undefined) {
+      var v = parseInt(m[3]);
+      total += v;
+      if (v !== 0) parts.push(v > 0 ? '+' + v : '' + v);
+    }
+  }
+  return { total: total, detail: parts.join(' ') };
+}
+
+function getCharName() {
+  return document.getElementById('f_character_name').value || currentChar;
+}
+
+function showResult(opts) {
+  var el = document.getElementById('roll-result');
+  document.getElementById('rr-char').textContent = opts.charName;
+  document.getElementById('rr-type').textContent = opts.type;
+
+  var atkLine  = document.getElementById('rr-atk-line');
+  var rollLine = document.getElementById('rr-roll-line');
+  var dmgLine  = document.getElementById('rr-dmg-line');
+
+  if (opts.attack !== undefined) {
+    atkLine.style.display  = 'block';
+    rollLine.style.display = 'none';
+    document.getElementById('rr-atk').textContent = opts.attack;
+  } else {
+    atkLine.style.display  = 'none';
+    rollLine.style.display = 'block';
+    document.getElementById('rr-total').textContent = opts.total;
+  }
+
+  if (opts.damage !== undefined) {
+    dmgLine.style.display = 'block';
+    document.getElementById('rr-dmg').textContent = opts.damage;
+  } else {
+    dmgLine.style.display = 'none';
+  }
+
+  document.getElementById('rr-detail').textContent  = opts.detail || '';
+  document.getElementById('rr-discord').textContent = 'Sending to Discord...';
+  el.style.display = 'block';
+  sendToDiscord(opts);
+}
+
+function sendToDiscord(opts) {
+  var lines = ['**' + opts.charName + '** \u2014 ' + opts.type];
+  if (opts.attack !== undefined) lines.push('Attack: **' + opts.attack + '**');
+  else lines.push('Roll: **' + opts.total + '**');
+  if (opts.damage !== undefined) lines.push('Damage: **' + opts.damage + '**');
+  if (opts.detail) lines.push('_' + opts.detail + '_');
+
+  fetch(PROXY_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content: lines.join('\n'), username: opts.charName})
+  }).then(function() {
+    document.getElementById('rr-discord').textContent = 'Posted to Discord \u2713';
+  }).catch(function() {
+    document.getElementById('rr-discord').textContent = 'Discord post failed \u2014 check proxy';
+  });
+}
+
+function rollSave(saveId, saveName) {
+  var d20 = rollD(20);
+  var bonusEl = document.getElementById('sv_' + saveId);
+  var bonusText = bonusEl ? bonusEl.textContent : '+0';
+  var bonus = parseInt(bonusText) || 0;
+  showResult({ charName: getCharName(), type: saveName + ' save', total: d20 + bonus, detail: 'd20(' + d20 + ') ' + bonusText });
+}
+
+function rollSkill(skillId, skillName) {
+  var d20 = rollD(20);
+  var bonusEl = document.getElementById('skv_' + skillId);
+  var bonusText = bonusEl ? bonusEl.textContent : '+0';
+  var bonus = parseInt(bonusText) || 0;
+  showResult({ charName: getCharName(), type: skillName, total: d20 + bonus, detail: 'd20(' + d20 + ') ' + bonusText });
+}
+
+function rollAttack(n) {
+  var nameEl  = document.getElementById('atk' + n + '_name');
+  var bonusEl = document.getElementById('atk' + n + '_bonus');
+  var dmgEl   = document.getElementById('atk' + n + '_dmg');
+  var name = nameEl  ? nameEl.value  : 'Attack';
+  var bonusText = bonusEl ? bonusEl.value : '+0';
+  var dmgExpr   = dmgEl   ? dmgEl.value   : '';
+  var atkBonus = parseInt(bonusText.replace('+','')) || 0;
+  var d20 = rollD(20);
+  var atkTotal = d20 + atkBonus;
+  var dmgResult = dmgExpr ? parseDamage(dmgExpr) : null;
+  showResult({
+    charName: getCharName(), type: name || 'Attack',
+    attack: atkTotal,
+    damage: dmgResult ? dmgResult.total : undefined,
+    detail: 'd20(' + d20 + ') ' + bonusText + (dmgResult ? ' | dmg: ' + dmgResult.detail : '')
+  });
+}
+
+function rollDie(dieInputId, label) {
+  var dieText = document.getElementById(dieInputId).value || 'd6';
+  var sides = parseInt(dieText.replace('d','')) || 6;
+  var result = rollD(sides);
+  showResult({ charName: getCharName(), type: label, total: result, detail: '1' + dieText });
+}
+
+function rollHealDie() {
+  var wis = getAbMod('wis');
+  var d8 = rollD(8);
+  showResult({ charName: getCharName(), type: 'Healing die', total: d8 + wis, detail: 'd8(' + d8 + ') ' + fmt(wis) + ' Wis' });
+}
+
+function rollSecondWind() {
+  var level = parseInt(document.getElementById('f_level').value) || 10;
+  var d10 = rollD(10);
+  showResult({ charName: getCharName(), type: 'Second Wind', total: d10 + level, detail: 'd10(' + d10 + ') + lvl(' + level + ')' });
+}
+
+function rollSneak() {
+  var n = parseInt(document.getElementById('sneak_dice').value) || 1;
+  var total = 0; var parts = [];
+  for (var i = 0; i < n; i++) { var r = rollD(6); total += r; parts.push(r); }
+  showResult({ charName: getCharName(), type: 'Sneak Attack', total: total, detail: n + 'd6: ' + parts.join('+') });
+}
+
+function rollMortal() {
+  var n = Math.max(1, parseInt(document.getElementById('mw_dice').value) || 1);
+  var total = 0; var parts = [];
+  for (var i = 0; i < n; i++) { var r = rollD(12); total += r; parts.push(r); }
+  showResult({ charName: getCharName(), type: 'Mortal Wound', total: total, detail: n + 'd12: ' + parts.join('+') });
+}
+
+var ALL_FIELDS = [
+  'character_name','class','level','prof','culture','background','shadow_weakness',
+  'standard_of_living','player','distinctive_quality','speciality','hope','despair',
+  'str','dex','con','int','wis','cha','shadow','shadow_perm',
+  'ac','speed','hp_max','hp_cur','hp_temp','hd','hd_rem',
+  'features','equipment','proficiencies'
+];
+
+var ALL_CHECKS = ['ds1','ds2','ds3','df1','df2','df3','f_inspiration','sw_used','as_used','fury_active'];
+var ALL_SELECTS = ['f_armour','f_shield','fighting_style'];
+var ALL_MISC = ['wg_cur','wg_max','wg_die','hd_cur','hd_max','sneak_dice','mw_dice','fury_bonus','fury_cur','fury_max'];
+
+var SKILL_CHECK_IDS = [];
+SKILLS.forEach(function(sk) { SKILL_CHECK_IDS.push('skp_'+sk.id, 'ske_'+sk.id); });
+SAVES.forEach(function(s)  { SKILL_CHECK_IDS.push('sp_'+s.id); });
+
+function getCharData() {
+  var d = {};
+  ALL_FIELDS.forEach(function(f) {
+    var el = document.getElementById('f_' + f) || document.getElementById(f);
+    if (el) d[f] = el.value;
+  });
+  ALL_CHECKS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) d[id] = el.checked;
+  });
+  ALL_SELECTS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) d[id] = el.value;
+  });
+  ALL_MISC.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) d[id] = el.value;
+  });
+  SKILL_CHECK_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) d[id] = el.checked;
+  });
+  for (var i = 1; i <= NUM_ATTACKS; i++) {
+    ['name','bonus','dmg'].forEach(function(p) {
+      var el = document.getElementById('atk' + i + '_' + p);
+      if (el) d['atk' + i + '_' + p] = el.value;
+    });
+  }
+  return d;
+}
+
+function applyCharData(d) {
+  if (!d) return;
+  ALL_FIELDS.forEach(function(f) {
+    var el = document.getElementById('f_' + f) || document.getElementById(f);
+    if (el && d[f] !== undefined) el.value = d[f];
+  });
+  ALL_CHECKS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && d[id] !== undefined) el.checked = d[id];
+  });
+  ALL_SELECTS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && d[id] !== undefined) el.value = d[id];
+  });
+  ALL_MISC.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && d[id] !== undefined) el.value = d[id];
+  });
+  SKILL_CHECK_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && d[id] !== undefined) el.checked = d[id];
+  });
+  for (var i = 1; i <= NUM_ATTACKS; i++) {
+    ['name','bonus','dmg'].forEach(function(p) {
+      var el = document.getElementById('atk' + i + '_' + p);
+      if (el && d['atk' + i + '_' + p] !== undefined) el.value = d['atk' + i + '_' + p];
+    });
+  }
+}
+
+function saveChar() {
+  localStorage.setItem('aime_' + currentChar, JSON.stringify(getCharData()));
+  var st = document.getElementById('save-status');
+  st.textContent = 'Saved!';
+  setTimeout(function() { st.textContent = ''; }, 2000);
+}
+
+function clearSheet() {
+  ALL_FIELDS.forEach(function(f) {
+    var el = document.getElementById('f_' + f) || document.getElementById(f);
+    if (el) el.value = '';
+  });
+  ALL_CHECKS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  SKILL_CHECK_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  for (var i = 1; i <= NUM_ATTACKS; i++) {
+    ['name','bonus','dmg'].forEach(function(p) {
+      var el = document.getElementById('atk' + i + '_' + p);
+      if (el) el.value = '';
+    });
+  }
+  document.getElementById('f_prof').value  = '+4';
+  document.getElementById('f_level').value = '10';
+  document.getElementById('fury_bonus').value = '2';
+  document.getElementById('fury_cur').value   = '4';
+  document.getElementById('fury_max').value   = '4';
+  document.getElementById('wg_die').value     = 'd6';
+}
+
+var DEFAULTS = {
+  ailean:    { character_name:'Ailean, Herald of the Gate', class:'Warden',         player:'Andrew',    culture:'Gondor',          background:'Fall Scion',        shadow_weakness:'Lure of Power',       str:'09', dex:'17', con:'10', int:'16', wis:'15', cha:'17' },
+  aerandir:  { character_name:'Aerandir the Ancient',       class:'Scholar',         player:'Alb',       culture:'Wayward Elf',     background:'World-weary',       shadow_weakness:'Lure of Secrets',     str:'01', dex:'02', con:'01', int:'03', wis:'02', cha:'02', distinctive_quality:'Patience', speciality:'Gardener' },
+  bodo:      { character_name:'Bodo Grubb',                 class:'Treasure Hunter', player:'Dave A',    culture:'Hobbit',          background:'Seeker of Lore',    shadow_weakness:'Dragon-sickness',     str:'13', dex:'18', con:'14', int:'16', wis:'16', cha:'16' },
+  bram:      { character_name:'Bram',                       class:'Slayer',          player:'Franziska', culture:'Hobbit',          background:'Wanderer',          shadow_weakness:'Curse of Vengeance',  str:'11', dex:'16', con:'14', int:'12', wis:'14', cha:'16', fury_bonus:'2', fury_max:'4', fury_cur:'4', mw_dice:'1' },
+  dendarian: { character_name:'Dendarian',                  class:'Warrior',         player:'Jason',     culture:'High Elf',        background:'Hunted by Shadow',  shadow_weakness:'Lure of Power',       str:'19', dex:'19', con:'15', int:'10', wis:'16', cha:'15' },
+  midril:    { character_name:'Midril GreenBlossom',        class:'Wanderer',        player:'Lucia',     culture:'Elf of Mirkwood', background:'Lure of the Road',  shadow_weakness:'Wandering-madness',   str:'15', dex:'18', con:'16', int:'11', wis:'16', cha:'11', distinctive_quality:'Swift', speciality:'Herb-lore' }
+};
+
+function applyDefaults(charId) {
+  var d = DEFAULTS[charId] || {};
+  Object.keys(d).forEach(function(k) {
+    var el = document.getElementById('f_' + k) || document.getElementById(k);
+    if (el) {
+      if (el.type === 'checkbox') el.checked = d[k];
+      else el.value = d[k];
+    }
+  });
+}
+
+function switchChar(charId) {
+  saveChar();
+  currentChar = charId;
+  clearSheet();
+  var saved = localStorage.getItem('aime_' + charId);
+  if (saved) {
+    try { applyCharData(JSON.parse(saved)); } catch(e) { applyDefaults(charId); }
+  } else {
+    applyDefaults(charId);
+  }
+  recalc();
+}
+
+buildSaves();
+buildSkills();
+buildAttacks();
+applyDefaults('ailean');
+recalc();
+</script>
+</body>
+</html>
