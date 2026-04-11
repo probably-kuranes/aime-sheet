@@ -878,8 +878,8 @@ function clearSheet() {
       if (el) el.value = '';
     });
   }
-  document.getElementById('f_prof').value  = '+4';
-  document.getElementById('f_level').value = '10';
+  document.getElementById('f_prof').value  = '+2';
+  document.getElementById('f_level').value = '4';
   document.getElementById('fury_bonus').value = '2';
   document.getElementById('fury_cur').value   = '4';
   document.getElementById('fury_max').value   = '4';
@@ -887,9 +887,82 @@ function clearSheet() {
 }
 
 var DEFAULTS = {
-  ailean:    { character_name:'Ailean, Herald of the Gate', class:'Warden',         player:'Andrew',    culture:'Gondor',          background:'Fall Scion',        shadow_weakness:'Lure of Power',       str:'09', dex:'17', con:'10', int:'16', wis:'15', cha:'17' },
-  aerandir:  { character_name:'Aerandir the Ancient',       class:'Scholar',         player:'Alb',       culture:'Wayward Elf',     background:'World-weary',       shadow_weakness:'Lure of Secrets',     str:'01', dex:'02', con:'01', int:'03', wis:'02', cha:'02', distinctive_quality:'Patience', speciality:'Gardener' },
-  bodo:      { character_name:'Bodo Grubb',                 class:'Treasure Hunter', player:'Dave A',    culture:'Hobbit',          background:'Seeker of Lore',    shadow_weakness:'Dragon-sickness',     str:'13', dex:'18', con:'14', int:'16', wis:'16', cha:'16' },
+  ailean: {
+    character_name:'Ailean, Herald of the Gate', class:'Warden', player:'Andrew',
+    level:'4', prof:'+2', culture:'Gondor', background:'Fallen Scion',
+    shadow_weakness:'Lure of Power',
+    str:'10', dex:'18', con:'10', int:'16', wis:'16', cha:'18',
+    shadow:'0', shadow_perm:'0', ac:'17', speed:'30 ft',
+    hp_max:'23', hp_cur:'23', hp_temp:'0', hd:'4d8', hd_rem:'4',
+    wg_cur:'0', wg_max:'3', wg_die:'d6',
+    fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
+    hd_cur:'0', hd_max:'0', sneak_dice:'0',
+    f_armour:'4', f_shield:'2', fighting_style:'none',
+    sp_dex:true, sp_cha:true,
+    skp_animal_handling:true, skp_arcana:true, skp_insight:true,
+    skp_investigation:true, skp_lore:true, skp_shadowlore:true,
+    skp_history:true, ske_history:true,
+    skp_persuasion:true, ske_persuasion:true,
+    atk1_name:'Rapier', atk1_bonus:'+6', atk1_dmg:'1d8+{dex}',
+    atk2_name:'Dagger', atk2_bonus:'+6', atk2_dmg:'1d4+{dex}',
+    atk3_name:'Shortbow', atk3_bonus:'+6', atk3_dmg:'1d6+{dex}',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    features:"WARDEN (Bard equivalent) \u2014 Level 4\n\nBardic Inspiration (d6): CHA mod (4) uses per long rest.\nBonus action to give ally within 60ft an inspiration die\nto add to one ability check, attack roll, or save.\n\nJack of All Trades: Add +1 (half prof) to any ability\ncheck that doesn\u2019t already include proficiency.\n\nSong of Rest (d6): Allies regain extra 1d6 HP when\nspending hit dice during a short rest.\n\nExpertise: History, Persuasion (double proficiency).\n\nWarden\u2019s Gift (d6): 3 uses per long rest.\n\nSpellcasting: CHA-based, spell save DC 14, spell attack +6.\n\nASI (level 4): Applied to stats.",
+    equipment:"Rapier\nDagger\nShortbow and 20 arrows\nLeather jerkin\nTravelling gear\nDulcimer, flute, hand drum\nPlaying card set",
+    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Dulcimer, Flute, Hand Drum, Playing Card Set\nLanguages: Abyssal, Common, Elvish"
+  },
+  aerandir: {
+    character_name:'Aerandir the Ancient', class:'Scholar', player:'Alb',
+    level:'4', prof:'+2', culture:'Wayward Elf', background:'World-weary',
+    shadow_weakness:'Lure of Secrets',
+    distinctive_quality:'Patience', speciality:'Gardener',
+    str:'13', dex:'14', con:'13', int:'17', wis:'15', cha:'14',
+    shadow:'0', shadow_perm:'0', ac:'13', speed:'30 ft',
+    hp_max:'27', hp_cur:'27', hp_temp:'0', hd:'4d8', hd_rem:'4',
+    hd_cur:'4', hd_max:'4',
+    wg_cur:'0', wg_max:'0', wg_die:'d6',
+    fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
+    sneak_dice:'0',
+    f_armour:'1', f_shield:'0', fighting_style:'none',
+    sp_int:true, sp_wis:true,
+    skp_history:true, skp_insight:true, skp_lore:true,
+    skp_perception:true, skp_stealth:true, skp_survival:true,
+    skp_traditions:true,
+    atk1_name:'Mattock', atk1_bonus:'+3', atk1_dmg:'2d6+{str}',
+    atk2_name:'Belt dagger', atk2_bonus:'+3', atk2_dmg:'1d4+{str}',
+    atk3_name:'', atk3_bonus:'', atk3_dmg:'',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    features:"SCHOLAR \u2014 Level 4 (AWAITING PATH CHOICE)\n\nHands of a Healer: Stabilise dying creature as action.\nRestore 1 HP with Wisdom (Medicine) check DC 10.\n\nHealing Dice Pool: " + "WIS mod + Scholar level = 6 dice (d6).\nExpend dice to heal allies as an action.\n\nNews from Afar: Advantage on gathering information\nduring journeys and in settlements.\n\nTongues of Many Peoples: Can communicate simple\nconcepts with any creature that has a language.\n\nLevel 3 path: TBD (Master Healer or Master Scholar).\nLevel 4 ASI: TBD (+2 to be allocated).\n\nWAYWARD ELF TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses (Perception proficiency).\n\nSHADOW WEAKNESS: Lure of Secrets",
+    equipment:"Mattock (2d6 piercing, two-handed)\nBelt dagger\nHerbalism kit\nCook\u2019s utensils\nLeather jerkin\nBlue travelling cloak\nTravelling gear, backpack, boots\nBlue blanket, wineskin with home-made mead",
+    proficiencies:"Armour: Light armour\nWeapons: Simple weapons\nTools: Herbalism kit, Cook\u2019s utensils\nLanguages: Woodland Elvish, Sindarin, Common;\nSimple conversations in all Men and Elves tongues;\nCommon phrases in all other tongues"
+  },
+  bodo: {
+    character_name:'Bodo Grubb', class:'Treasure Hunter', player:'Dave A',
+    level:'4', prof:'+2', culture:'Hobbit', background:'Seeker of Lore',
+    shadow_weakness:'Dragon-sickness',
+    str:'13', dex:'20', con:'14', int:'16', wis:'16', cha:'16',
+    shadow:'0', shadow_perm:'0', ac:'16', speed:'25 ft',
+    hp_max:'31', hp_cur:'31', hp_temp:'0', hd:'4d8', hd_rem:'4',
+    sneak_dice:'2',
+    wg_cur:'0', wg_max:'0', wg_die:'d6',
+    fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
+    hd_cur:'0', hd_max:'0',
+    f_armour:'1', f_shield:'0', fighting_style:'twf',
+    cor_advantage:true,
+    sp_dex:true, sp_int:true,
+    skp_deception:true, skp_history:true, skp_insight:true,
+    skp_investigation:true, skp_lore:true, skp_nature:true,
+    skp_perception:true, skp_sleight:true,
+    skp_stealth:true, ske_stealth:true,
+    skp_survival:true, ske_survival:true,
+    atk1_name:'Aicasicil (+2 dagger)', atk1_bonus:'+9', atk1_dmg:'1d4+{dex}+2',
+    atk2_name:'Shortsword', atk2_bonus:'+7', atk2_dmg:'1d6+{dex}',
+    atk3_name:'Shortbow', atk3_bonus:'+7', atk3_dmg:'1d6+{dex}',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    features:"TREASURE HUNTER (Rogue) \u2014 Level 4\n\nSneak Attack (2d6): Once per turn, extra damage when\nyou have advantage or an ally is within 5ft of target.\n\nExpertise: Stealth, Thieves\u2019 Tools (double proficiency).\n\nThieves\u2019 Cant: Secret rogue language.\n\nCunning Action: Bonus action to Dash, Disengage, or Hide.\n\nTwo-Weapon Fighting style.\n\nASI (level 4): DEX +2 (18\u219220).\n\nHOBBIT TRAITS\nResilient: Advantage on Corruption saving throws.\nHobbit Nimbleness: Move through space of larger creatures.\nNight Vision.\n\nSHADOW WEAKNESS: Dragon-sickness",
+    equipment:"Aicasicil (+2 magical dagger \u2014 1d4 piercing, finesse, light)\nShortsword\nShort bow and 20 arrows\nLeather jerkin\nThieves\u2019 tools\nCook\u2019s utensils, pan flute\nTravelling gear",
+    proficiencies:"Armour: Light armour\nWeapons: Simple weapons, shortswords, rapiers, hand crossbows\nTools: Thieves\u2019 tools, Cook\u2019s utensils, Pan flute\nLanguages: Common, Halfling, Thieves\u2019 Cant"
+  },
   bram: {
     character_name:'Bram Toadfoot', class:'Slayer (Foehammer)', player:'Franziska',
     level:'4', prof:'+2', culture:'Hobbit of the Shire', background:'Wanderer',
@@ -912,8 +985,53 @@ var DEFAULTS = {
     equipment:"Laudh, the Seasoned Skillet of Buckland\n  (magical greatclub \u2014 1d8 bludgeoning, two-handed, magical)\nDagger\nCorslet of mail (carried \u2014 using Unarmoured Defence)\nFur-lined travelling cloak\nTravelling gear\nBedroll, backpack, comfortable boots\nPipe and pipeweed\nDwarf-made pots and pans\nSilver pennies",
     proficiencies:"Armour: Light, medium, heavy (Foehammer path), shields\nWeapons: Simple weapons, martial weapons\nTools: Cook\u2019s utensils, pipes\nLanguages: Common (Westron)"
   },
-  dendarian: { character_name:'Dendarian',                  class:'Warrior',         player:'Jason',     culture:'High Elf',        background:'Hunted by Shadow',  shadow_weakness:'Lure of Power',       str:'19', dex:'19', con:'15', int:'10', wis:'16', cha:'15' },
-  midril:    { character_name:'Midril GreenBlossom',        class:'Wanderer',        player:'Lucia',     culture:'Elf of Mirkwood', background:'Lure of the Road',  shadow_weakness:'Wandering-madness',   str:'15', dex:'18', con:'16', int:'11', wis:'16', cha:'11', distinctive_quality:'Swift', speciality:'Herb-lore' }
+  dendarian: {
+    character_name:'Dendarian', class:'Warrior', player:'Jason',
+    level:'4', prof:'+2', culture:'High Elf', background:'Hunted by Shadow',
+    shadow_weakness:'Lure of Power', standard_of_living:'Prosperous',
+    str:'18', dex:'20', con:'16', int:'10', wis:'16', cha:'15',
+    shadow:'0', shadow_perm:'0', ac:'17', speed:'30 ft',
+    hp_max:'40', hp_cur:'40', hp_temp:'0', hd:'4d10', hd_rem:'4',
+    wg_cur:'0', wg_max:'0', wg_die:'d6',
+    fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
+    hd_cur:'0', hd_max:'0', sneak_dice:'0',
+    f_armour:'7', f_shield:'0', fighting_style:'defence',
+    sp_str:true, sp_con:true,
+    skp_athletics:true, skp_insight:true, skp_intimidation:true,
+    skp_perception:true, skp_stealth:true, skp_survival:true,
+    atk1_name:'Great Spear Oropher (+2)', atk1_bonus:'+8', atk1_dmg:'1d10+{str}+2',
+    atk2_name:'Dagger', atk2_bonus:'+7', atk2_dmg:'1d4+{dex}',
+    atk3_name:'Longbow', atk3_bonus:'+7', atk3_dmg:'1d8+{dex}',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    features:"WARRIOR (Fighter) \u2014 Level 4\n\nFighting Style: Defence (+1 AC when wearing armour).\n\nSecond Wind: 1/short rest, bonus action to heal 1d10+4.\n\nAction Surge: 1/short rest, take an additional action.\n\nSuperiority Dice: 4d8 per short rest.\nManeuvers enhance attacks in various ways.\n\nASI (level 4): Applied to stats.\n\nHIGH ELF TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses, Against the Unseen (see spirits,\nimmune to frightened), Beset by Woe (shadow stuff),\nEyes of the Elves (Perception proficiency).\n\nSHADOW WEAKNESS: Lure of Power",
+    equipment:"Great Spear Oropher (+2 magical spear \u2014 1d10 piercing,\n  reach, two-handed, magical)\nDagger\nGreat bow and 20 arrows\nBuckler (shield)\nLeather corslet\nGrey cloak\nBackpack, wineskin\nWhite jewel on a silver chain\n21 silver pennies",
+    proficiencies:"Armour: Light armour, medium armour, heavy armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Calligrapher\u2019s supplies, Dragonchess set, Smith\u2019s tools\nLanguages: Common, Dwarvish, Elvish"
+  },
+  midril: {
+    character_name:'Midril GreenBlossom', class:'Wanderer', player:'Lucia',
+    level:'4', prof:'+2', culture:'Elf of Mirkwood', background:'Lure of the Road',
+    shadow_weakness:'Wandering-madness',
+    distinctive_quality:'Swift', speciality:'Herb-lore',
+    hope:'We are all equal on the road \u2014 we need to rely on each other\u2019s common decency.',
+    despair:'If I\u2019ve learned anything on the road it\u2019s that friendships are fleeting and only strong when convenient; in the end we are all alone.',
+    str:'15', dex:'20', con:'16', int:'12', wis:'17', cha:'12',
+    shadow:'0', shadow_perm:'0', ac:'17', speed:'35 ft',
+    hp_max:'40', hp_cur:'40', hp_temp:'0', hd:'4d10', hd_rem:'4',
+    wg_cur:'0', wg_max:'0', wg_die:'d6',
+    fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
+    hd_cur:'0', hd_max:'0', sneak_dice:'0',
+    f_armour:'2', f_shield:'0', fighting_style:'archery',
+    sp_str:true, sp_dex:true,
+    skp_animal_handling:true, skp_athletics:true,
+    skp_perception:true, skp_stealth:true, skp_survival:true,
+    atk1_name:'Longbow', atk1_bonus:'+9', atk1_dmg:'1d8+{dex}',
+    atk2_name:'Rapier', atk2_bonus:'+7', atk2_dmg:'1d8+{dex}',
+    atk3_name:'Dagger', atk3_bonus:'+7', atk3_dmg:'1d4+{dex}',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    features:"WANDERER (Ranger) \u2014 Level 4\n\nFighting Style: Archery (+2 to ranged attack rolls).\n\nPrimeval Awareness: Expend a spell slot to sense\naberrations, celestials, dragons, elementals, fey,\nfiends, or undead within 1 mile (6 miles in favoured terrain).\n\nSpellcasting: WIS-based, spell save DC 13, spell attack +5.\n\nFavoured Enemy / Natural Explorer features.\n\nASI (level 4): Applied to stats.\n\nELF OF MIRKWOOD TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses (Perception proficiency).\nSpeed 35 ft (Wood Elf Fleet of Foot).\nMagical Sleep (Condition: defence).\n\nSHADOW WEAKNESS: Wandering-madness",
+    equipment:"Longbow and 20 arrows\nRapier\nDagger\nLeather corslet\nGrey travelling cloak\nTravelling gear for the season\nBackpack, boots\nShort bow and 20 arrows\nWhite jewel on a chain of silver",
+    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Lute\nLanguages: Celestial, Common, Elvish, Sylvan"
+  }
 };
 
 function applyDefaults(charId) {
