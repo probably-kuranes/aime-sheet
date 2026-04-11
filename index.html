@@ -268,6 +268,13 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         <div class="sec-lbl">Combat</div>
         <div class="row">
           <div class="f f-n"><span>AC</span><input type="text" id="f_ac" value="10"/></div>
+          <div class="f" style="min-width:130px;flex:0;">
+            <span style="font-size:8px;">Unarmoured Def.</span>
+            <label style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+              <input type="checkbox" id="f_unarmoured_defence" onchange="recalc()" style="width:15px;height:15px;"/>
+              <span id="uad_calc" style="font-size:10px;color:#7a5c2e;"></span>
+            </label>
+          </div>
           <div class="f f-n"><span>Initiative</span><span id="f_init" style="font-size:14px;font-weight:bold;color:#2c1f0f;display:block;padding:3px 0;">+0</span></div>
           <div class="f f-n"><span>Speed</span><input type="text" id="f_speed" value="30 ft"/></div>
           <div class="f f-n"><span>Inspiration</span><input type="checkbox" id="f_inspiration" style="width:18px;height:18px;margin-top:4px;"/></div>
@@ -319,6 +326,9 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         </div>
         <div class="atk-hint">Example: name "Broadsword", bonus "+7", damage "1d8+{str}"</div>
         <div id="attacks-container"></div>
+        <div style="font-size:9px;color:#7a5c2e;margin-top:6px;padding:4px 6px;background:#f5f0e8;border-radius:3px;border:1px solid #c8a96e33;">
+          <strong>Damage tokens:</strong> {str} = Str mod &bull; {dex} = Dex mod &bull; {fury} = Str + fury bonus (when active) &bull; {duel} = Str + duelling (+2)
+        </div>
       </div>
 
       <div class="sec">
@@ -457,9 +467,15 @@ function buildSaves() {
   SAVES.forEach(function(s) {
     var row = document.createElement('div');
     row.className = 'save-row';
+    var corAdv = '';
+    if (s.id === 'cor') {
+      corAdv = ' <input type="checkbox" id="cor_advantage" style="width:12px;height:12px;flex-shrink:0;margin-left:4px;" onchange="document.getElementById(\'cor_adv_label\').style.display=this.checked?\'inline\':\'none\'"/>' +
+        '<span id="cor_adv_label" style="font-size:9px;color:#7a5c2e;font-weight:bold;background:#ede0c8;padding:1px 4px;border-radius:2px;display:none;">ADV (Hobbit)</span>';
+    }
     row.innerHTML =
       '<input type="checkbox" id="sp_' + s.id + '" onchange="recalc()" style="width:14px;height:14px;flex-shrink:0"/>' +
       '<span class="save-name">' + s.name + '</span>' +
+      corAdv +
       '<span class="bonus" id="sv_' + s.id + '">+0</span>' +
       '<button class="roll-btn" onclick="rollSave(\'' + s.id + '\',\'' + s.name + '\')">Roll</button>';
     c.appendChild(row);
@@ -517,6 +533,21 @@ function recalc() {
   var style = document.getElementById('fighting_style').value;
   var furyOn = document.getElementById('fury_active').checked;
   var furyBonus = parseInt(document.getElementById('fury_bonus').value) || 2;
+
+  var uadCheck = document.getElementById('f_unarmoured_defence');
+  var uadLabel = document.getElementById('uad_calc');
+  var acInput = document.getElementById('f_ac');
+  if (uadCheck && uadCheck.checked) {
+    var uadAC = 10 + abs.dex + abs.con;
+    acInput.value = uadAC;
+    acInput.disabled = true;
+    acInput.style.background = '#e8e0d0';
+    if (uadLabel) uadLabel.textContent = '10+' + fmt(abs.dex) + '+' + fmt(abs.con) + '=' + uadAC;
+  } else {
+    acInput.disabled = false;
+    acInput.style.background = 'white';
+    if (uadLabel) uadLabel.textContent = '';
+  }
 
   document.getElementById('d_str').textContent  = fmt(abs.str);
   document.getElementById('d_dex').textContent  = fmt(abs.dex);
@@ -721,7 +752,7 @@ var ALL_FIELDS = [
   'features','equipment','proficiencies'
 ];
 
-var ALL_CHECKS = ['ds1','ds2','ds3','df1','df2','df3','f_inspiration','sw_used','as_used','fury_active'];
+var ALL_CHECKS = ['ds1','ds2','ds3','df1','df2','df3','f_inspiration','sw_used','as_used','fury_active','f_unarmoured_defence','cor_advantage'];
 var ALL_SELECTS = ['f_armour','f_shield','fighting_style'];
 var ALL_MISC = ['wg_cur','wg_max','wg_die','hd_cur','hd_max','sneak_dice','mw_dice','fury_bonus','fury_cur','fury_max'];
 
@@ -770,6 +801,9 @@ function applyCharData(d) {
     var el = document.getElementById(id);
     if (el && d[id] !== undefined) el.checked = d[id];
   });
+  var corAdvLabel = document.getElementById('cor_adv_label');
+  var corAdvCheck = document.getElementById('cor_advantage');
+  if (corAdvLabel && corAdvCheck) corAdvLabel.style.display = corAdvCheck.checked ? 'inline' : 'none';
   ALL_SELECTS.forEach(function(id) {
     var el = document.getElementById(id);
     if (el && d[id] !== undefined) el.value = d[id];
@@ -828,7 +862,28 @@ var DEFAULTS = {
   ailean:    { character_name:'Ailean, Herald of the Gate', class:'Warden',         player:'Andrew',    culture:'Gondor',          background:'Fall Scion',        shadow_weakness:'Lure of Power',       str:'09', dex:'17', con:'10', int:'16', wis:'15', cha:'17' },
   aerandir:  { character_name:'Aerandir the Ancient',       class:'Scholar',         player:'Alb',       culture:'Wayward Elf',     background:'World-weary',       shadow_weakness:'Lure of Secrets',     str:'01', dex:'02', con:'01', int:'03', wis:'02', cha:'02', distinctive_quality:'Patience', speciality:'Gardener' },
   bodo:      { character_name:'Bodo Grubb',                 class:'Treasure Hunter', player:'Dave A',    culture:'Hobbit',          background:'Seeker of Lore',    shadow_weakness:'Dragon-sickness',     str:'13', dex:'18', con:'14', int:'16', wis:'16', cha:'16' },
-  bram:      { character_name:'Bram',                       class:'Slayer',          player:'Franziska', culture:'Hobbit',          background:'Wanderer',          shadow_weakness:'Curse of Vengeance',  str:'11', dex:'16', con:'14', int:'12', wis:'14', cha:'16', fury_bonus:'2', fury_max:'4', fury_cur:'4', mw_dice:'1' },
+  bram: {
+    character_name:'Bram Toadfoot', class:'Slayer (Foehammer)', player:'Franziska',
+    level:'4', prof:'+2', culture:'Hobbit of the Shire', background:'Wanderer',
+    shadow_weakness:'Curse of Vengeance', standard_of_living:'Prosperous',
+    distinctive_quality:'Fierce', speciality:'Cooking',
+    str:'18', dex:'16', con:'18', int:'12', wis:'10', cha:'14',
+    shadow:'0', shadow_perm:'0', ac:'17', speed:'25 ft',
+    hp_max:'49', hp_cur:'49', hp_temp:'0', hd:'4d12', hd_rem:'4',
+    fury_bonus:'2', fury_max:'3', fury_cur:'3', mw_dice:'0',
+    wg_cur:'0', wg_max:'0', wg_die:'d6', hd_cur:'0', hd_max:'0', sneak_dice:'0',
+    f_unarmoured_defence:true, cor_advantage:true,
+    f_armour:'0', f_shield:'0', fighting_style:'none',
+    atk1_name:'Laudh, the Seasoned Skillet of Buckland', atk1_bonus:'+6', atk1_dmg:'1d8+{fury}',
+    atk2_name:'Dagger', atk2_bonus:'+5', atk2_dmg:'1d4+{dex}',
+    atk3_name:'', atk3_bonus:'', atk3_dmg:'',
+    atk4_name:'', atk4_bonus:'', atk4_dmg:'',
+    skp_athletics:true, skp_intimidation:true, skp_stealth:true,
+    sp_str:true, sp_con:true,
+    features:"SLAYER \u2014 FOEHAMMER PATH (level 4)\n\nBattle-fury (3/long rest): Bonus action to enter fury.\nWhile active: advantage on Str checks and Str saves;\n+2 bonus damage on Str melee attacks; resistance to\nbludgeoning, piercing and slashing damage. Ends if\nunconscious or no attack/damage taken on your turn.\n\nUnarmoured Defence: AC = 10 + Dex mod + Con mod = 17.\nCan use a shield (not great shield) and keep this.\n\nReckless Attack: On your first attack, optionally attack\nrecklessly \u2014 advantage on Str melee attacks this turn,\nbut attacks against you also have advantage until your\nnext turn.\n\nVigilant Senses: Advantage on Perception to detect\nenemies or ambushes (not if blinded/deafened/incapacitated).\n\nArmoured Fury (Foehammer lvl 3): Full Battle-fury\nbenefits even in heavy armour. Heavy armour proficiency.\n\nHOBBIT TRAITS\nResilient: Advantage on Corruption saving throws.\nHobbit Nimbleness: Move through space of larger creatures.\nNoble Pursuits: Proficiency with short bows and cook\u2019s utensils.\nHobbit Elusiveness: Proficiency in Stealth.\n\nSHADOW WEAKNESS: Curse of Vengeance",
+    equipment:"Laudh, the Seasoned Skillet of Buckland\n  (magical greatclub \u2014 1d8 bludgeoning, two-handed, magical)\nDagger\nCorslet of mail (carried \u2014 using Unarmoured Defence)\nFur-lined travelling cloak\nTravelling gear\nBedroll, backpack, comfortable boots\nPipe and pipeweed\nDwarf-made pots and pans\nSilver pennies",
+    proficiencies:"Armour: Light, medium, heavy (Foehammer path), shields\nWeapons: Simple weapons, martial weapons\nTools: Cook\u2019s utensils, pipes\nLanguages: Common (Westron)"
+  },
   dendarian: { character_name:'Dendarian',                  class:'Warrior',         player:'Jason',     culture:'High Elf',        background:'Hunted by Shadow',  shadow_weakness:'Lure of Power',       str:'19', dex:'19', con:'15', int:'10', wis:'16', cha:'15' },
   midril:    { character_name:'Midril GreenBlossom',        class:'Wanderer',        player:'Lucia',     culture:'Elf of Mirkwood', background:'Lure of the Road',  shadow_weakness:'Wandering-madness',   str:'15', dex:'18', con:'16', int:'11', wis:'16', cha:'11', distinctive_quality:'Swift', speciality:'Herb-lore' }
 };
@@ -842,6 +897,9 @@ function applyDefaults(charId) {
       else el.value = d[k];
     }
   });
+  var corAdvLabel = document.getElementById('cor_adv_label');
+  var corAdvCheck = document.getElementById('cor_advantage');
+  if (corAdvLabel && corAdvCheck) corAdvLabel.style.display = corAdvCheck.checked ? 'inline' : 'none';
 }
 
 function switchChar(charId) {
