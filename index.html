@@ -282,7 +282,7 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         <div class="row">
           <div class="f">
             <span>Armour worn</span>
-            <select id="f_armour">
+            <select id="f_armour" onchange="recalc()">
               <option value="0">Unarmoured (10+Dex)</option>
               <option value="1">Leather jerkin (11+Dex)</option>
               <option value="2">Leather corslet (12+Dex)</option>
@@ -295,7 +295,7 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
           </div>
           <div class="f">
             <span>Shield</span>
-            <select id="f_shield">
+            <select id="f_shield" onchange="recalc()">
               <option value="0">None</option>
               <option value="2">Shield (+2)</option>
               <option value="4">Great shield (+4)</option>
@@ -547,6 +547,22 @@ function recalc() {
     acInput.disabled = false;
     acInput.style.background = 'white';
     if (uadLabel) uadLabel.textContent = '';
+    // Recalculate AC from armour + shield + Dex
+    var armourVal = parseInt(document.getElementById('f_armour').value) || 0;
+    var shieldVal = parseInt(document.getElementById('f_shield').value) || 0;
+    var armourAC;
+    if (armourVal === 0) armourAC = 10 + abs.dex;           // Unarmoured (10+Dex)
+    else if (armourVal === 1) armourAC = 11 + abs.dex;      // Leather jerkin
+    else if (armourVal === 2) armourAC = 12 + abs.dex;      // Leather corslet
+    else if (armourVal === 3) armourAC = 12 + Math.min(abs.dex, 2); // Hide
+    else if (armourVal === 4) armourAC = 13 + Math.min(abs.dex, 2); // Corslet of mail
+    else if (armourVal === 5) armourAC = 14 + Math.min(abs.dex, 2); // Scale hauberk
+    else if (armourVal === 6) armourAC = 14;                // Ring-mail
+    else if (armourVal === 7) armourAC = 16;                // Heavy mail
+    else armourAC = 10 + abs.dex;
+    armourAC += shieldVal;
+    if (style === 'defence') armourAC += 1;
+    acInput.value = armourAC;
   }
 
   document.getElementById('d_str').textContent  = fmt(abs.str);
