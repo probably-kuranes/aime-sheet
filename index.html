@@ -169,6 +169,7 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
     <option value="midril">Midril GreenBlossom (Lucia — Wanderer)</option>
   </select>
   <button id="save-btn" onclick="saveChar()">Save character</button>
+  <button id="reset-btn" onclick="resetChar()" style="background:none;color:#c8a96e88;border:1px solid #c8a96e44;border-radius:4px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:Georgia,serif;">Reset to defaults</button>
   <span id="save-status"></span>
 </div>
 
@@ -838,6 +839,17 @@ function applyCharData(d) {
       if (el && d['atk' + i + '_' + p] !== undefined) el.value = d['atk' + i + '_' + p];
     });
   }
+}
+
+function resetChar() {
+  if (!confirm('Reset ' + (document.getElementById('f_character_name').value || currentChar) + ' to defaults? This will erase any saved changes for this character.')) return;
+  localStorage.removeItem('aime_' + currentChar);
+  clearSheet();
+  applyDefaults(currentChar);
+  recalc();
+  var st = document.getElementById('save-status');
+  st.textContent = 'Reset to defaults!';
+  setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
 function saveChar() {
