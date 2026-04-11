@@ -906,7 +906,7 @@ var DEFAULTS = {
     atk2_name:'Dagger', atk2_bonus:'+5', atk2_dmg:'1d4+{dex}',
     atk3_name:'', atk3_bonus:'', atk3_dmg:'',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    skp_athletics:true, skp_intimidation:true, skp_stealth:true,
+    skp_athletics:true, skp_intimidation:true, skp_stealth:true, skp_perception:true, skp_survival:true,
     sp_str:true, sp_con:true,
     features:"SLAYER \u2014 FOEHAMMER PATH (level 4)\n\nBattle-fury (3/long rest): Bonus action to enter fury.\nWhile active: advantage on Str checks and Str saves;\n+2 bonus damage on Str melee attacks; resistance to\nbludgeoning, piercing and slashing damage. Ends if\nunconscious or no attack/damage taken on your turn.\n\nUnarmoured Defence: AC = 10 + Dex mod + Con mod = 17.\nCan use a shield (not great shield) and keep this.\n\nReckless Attack: On your first attack, optionally attack\nrecklessly \u2014 advantage on Str melee attacks this turn,\nbut attacks against you also have advantage until your\nnext turn.\n\nVigilant Senses: Advantage on Perception to detect\nenemies or ambushes (not if blinded/deafened/incapacitated).\n\nArmoured Fury (Foehammer lvl 3): Full Battle-fury\nbenefits even in heavy armour. Heavy armour proficiency.\n\nHOBBIT TRAITS\nResilient: Advantage on Corruption saving throws.\nHobbit Nimbleness: Move through space of larger creatures.\nNoble Pursuits: Proficiency with short bows and cook\u2019s utensils.\nHobbit Elusiveness: Proficiency in Stealth.\n\nSHADOW WEAKNESS: Curse of Vengeance",
     equipment:"Laudh, the Seasoned Skillet of Buckland\n  (magical greatclub \u2014 1d8 bludgeoning, two-handed, magical)\nDagger\nCorslet of mail (carried \u2014 using Unarmoured Defence)\nFur-lined travelling cloak\nTravelling gear\nBedroll, backpack, comfortable boots\nPipe and pipeweed\nDwarf-made pots and pans\nSilver pennies",
@@ -934,11 +934,10 @@ function switchChar(charId) {
   saveChar();
   currentChar = charId;
   clearSheet();
+  applyDefaults(charId);
   var saved = localStorage.getItem('aime_' + charId);
   if (saved) {
-    try { applyCharData(JSON.parse(saved)); } catch(e) { applyDefaults(charId); }
-  } else {
-    applyDefaults(charId);
+    try { applyCharData(JSON.parse(saved)); } catch(e) {}
   }
   recalc();
 }
@@ -947,6 +946,8 @@ buildSaves();
 buildSkills();
 buildAttacks();
 applyDefaults('ailean');
+var initSaved = localStorage.getItem('aime_ailean');
+if (initSaved) { try { applyCharData(JSON.parse(initSaved)); } catch(e) {} }
 recalc();
 </script>
 </body>
