@@ -855,8 +855,12 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
+var DEFAULTS_VERSION = 3;
+
 function saveChar() {
-  localStorage.setItem('aime_' + currentChar, JSON.stringify(getCharData()));
+  var d = getCharData();
+  d._version = DEFAULTS_VERSION;
+  localStorage.setItem('aime_' + currentChar, JSON.stringify(d));
   var st = document.getElementById('save-status');
   st.textContent = 'Saved!';
   setTimeout(function() { st.textContent = ''; }, 2000);
@@ -906,12 +910,12 @@ var DEFAULTS = {
     skp_investigation:true, skp_lore:true, skp_shadowlore:true,
     skp_history:true, ske_history:true,
     skp_persuasion:true, ske_persuasion:true,
-    atk1_name:'Rapier', atk1_bonus:'+6', atk1_dmg:'1d8+{dex}',
+    atk1_name:'Broadsword', atk1_bonus:'+6', atk1_dmg:'1d8+{dex}',
     atk2_name:'Dagger', atk2_bonus:'+6', atk2_dmg:'1d4+{dex}',
     atk3_name:'Shortbow', atk3_bonus:'+6', atk3_dmg:'1d6+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
     features:"WARDEN (Bard equivalent) \u2014 Level 4\n\nBardic Inspiration (d6): CHA mod (4) uses per long rest.\nBonus action to give ally within 60ft an inspiration die\nto add to one ability check, attack roll, or save.\n\nJack of All Trades: Add +1 (half prof) to any ability\ncheck that doesn\u2019t already include proficiency.\n\nSong of Rest (d6): Allies regain extra 1d6 HP when\nspending hit dice during a short rest.\n\nExpertise: History, Persuasion (double proficiency).\n\nWarden\u2019s Gift (d6): 3 uses per long rest.\n\nSpellcasting: CHA-based, spell save DC 14, spell attack +6.\n\nASI (level 4): Applied to stats.",
-    equipment:"Rapier\nDagger\nShortbow and 20 arrows\nLeather jerkin\nTravelling gear\nDulcimer, flute, hand drum\nPlaying card set",
+    equipment:"Broadsword (1d8, finesse)\nDagger\nShortbow and 20 arrows\nLeather jerkin\nTravelling gear\nDulcimer, flute, hand drum\nPlaying card set",
     proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Dulcimer, Flute, Hand Drum, Playing Card Set\nLanguages: Abyssal, Common, Elvish"
   },
   aerandir: {
@@ -978,7 +982,7 @@ var DEFAULTS = {
     wg_cur:'0', wg_max:'0', wg_die:'d6', hd_cur:'0', hd_max:'0', sneak_dice:'0',
     f_unarmoured_defence:true, cor_advantage:true,
     f_armour:'0', f_shield:'0', fighting_style:'none',
-    atk1_name:'Laudh, the Seasoned Skillet of Buckland (+2)', atk1_bonus:'+8', atk1_dmg:'1d8+{fury}+2',
+    atk1_name:'Laudh, the Seasoned Skillet of Buckland (+2)', atk1_bonus:'+8', atk1_dmg:'1d10+{fury}+2',
     atk2_name:'Dagger', atk2_bonus:'+5', atk2_dmg:'1d4+{dex}',
     atk3_name:'', atk3_bonus:'', atk3_dmg:'',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
@@ -1051,15 +1055,26 @@ function applyDefaults(charId) {
   if (corAdvLabel && corAdvCheck) corAdvLabel.style.display = corAdvCheck.checked ? 'inline' : 'none';
 }
 
+function loadSaved(charId) {
+  var raw = localStorage.getItem('aime_' + charId);
+  if (!raw) return null;
+  try {
+    var d = JSON.parse(raw);
+    if (!d._version || d._version < DEFAULTS_VERSION) {
+      localStorage.removeItem('aime_' + charId);
+      return null;
+    }
+    return d;
+  } catch(e) { return null; }
+}
+
 function switchChar(charId) {
   saveChar();
   currentChar = charId;
   clearSheet();
   applyDefaults(charId);
-  var saved = localStorage.getItem('aime_' + charId);
-  if (saved) {
-    try { applyCharData(JSON.parse(saved)); } catch(e) {}
-  }
+  var saved = loadSaved(charId);
+  if (saved) { applyCharData(saved); }
   recalc();
 }
 
@@ -1067,8 +1082,8 @@ buildSaves();
 buildSkills();
 buildAttacks();
 applyDefaults('ailean');
-var initSaved = localStorage.getItem('aime_ailean');
-if (initSaved) { try { applyCharData(JSON.parse(initSaved)); } catch(e) {} }
+var initSaved = loadSaved('ailean');
+if (initSaved) { applyCharData(initSaved); }
 recalc();
 </script>
 </body>
