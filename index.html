@@ -855,7 +855,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 3;
+var DEFAULTS_VERSION = 4;
 
 function saveChar() {
   var d = getCharData();
@@ -957,11 +957,13 @@ var DEFAULTS = {
     f_armour:'1', f_shield:'0', fighting_style:'twf',
     cor_advantage:true,
     sp_dex:true, sp_int:true,
-    skp_deception:true, skp_history:true, skp_insight:true,
-    skp_investigation:true, skp_lore:true, skp_nature:true,
+    skp_deception:true,
+    skp_investigation:true, skp_lore:true,
+    skp_nature:true, ske_nature:true,
     skp_perception:true, skp_sleight:true,
     skp_stealth:true, ske_stealth:true,
     skp_survival:true, ske_survival:true,
+    skp_thieves_tools:true, ske_thieves_tools:true,
     atk1_name:'Aicasicil (+2 dagger)', atk1_bonus:'+9', atk1_dmg:'1d4+{dex}+2',
     atk2_name:'Shortsword', atk2_bonus:'+7', atk2_dmg:'1d6+{dex}',
     atk3_name:'Shortbow', atk3_bonus:'+7', atk3_dmg:'1d6+{dex}',
