@@ -855,7 +855,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 4;
+var DEFAULTS_VERSION = 5;
 
 function saveChar() {
   var d = getCharData();
@@ -896,12 +896,12 @@ function clearSheet() {
 var DEFAULTS = {
   ailean: {
     character_name:'Ailean, Herald of the Gate', class:'Warden', player:'Andrew',
-    level:'4', prof:'+2', culture:'Gondor', background:'Fallen Scion',
+    level:'8', prof:'+3', culture:'Gondor', background:'Fallen Scion',
     shadow_weakness:'Lure of Power',
-    str:'10', dex:'18', con:'10', int:'16', wis:'16', cha:'18',
+    str:'10', dex:'18', con:'10', int:'16', wis:'16', cha:'20',
     shadow:'0', shadow_perm:'0', ac:'17', speed:'30 ft',
-    hp_max:'23', hp_cur:'23', hp_temp:'0', hd:'4d8', hd_rem:'4',
-    wg_cur:'0', wg_max:'3', wg_die:'d6',
+    hp_max:'43', hp_cur:'43', hp_temp:'0', hd:'8d8', hd_rem:'8',
+    wg_cur:'5', wg_max:'5', wg_die:'d8',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     hd_cur:'0', hd_max:'0', sneak_dice:'0',
     f_armour:'4', f_shield:'2', fighting_style:'none',
@@ -910,11 +910,11 @@ var DEFAULTS = {
     skp_investigation:true, skp_lore:true, skp_shadowlore:true,
     skp_history:true, ske_history:true,
     skp_persuasion:true, ske_persuasion:true,
-    atk1_name:'Broadsword', atk1_bonus:'+6', atk1_dmg:'1d8+{dex}',
-    atk2_name:'Dagger', atk2_bonus:'+6', atk2_dmg:'1d4+{dex}',
-    atk3_name:'Shortbow', atk3_bonus:'+6', atk3_dmg:'1d6+{dex}',
+    atk1_name:'Broadsword', atk1_bonus:'+7', atk1_dmg:'1d8+{dex}',
+    atk2_name:'Dagger', atk2_bonus:'+7', atk2_dmg:'1d4+{dex}',
+    atk3_name:'Shortbow', atk3_bonus:'+7', atk3_dmg:'1d6+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"WARDEN (Bard equivalent) \u2014 Level 4\n\nBardic Inspiration (d6): CHA mod (4) uses per long rest.\nBonus action to give ally within 60ft an inspiration die\nto add to one ability check, attack roll, or save.\n\nJack of All Trades: Add +1 (half prof) to any ability\ncheck that doesn\u2019t already include proficiency.\n\nSong of Rest (d6): Allies regain extra 1d6 HP when\nspending hit dice during a short rest.\n\nExpertise: History, Persuasion (double proficiency).\n\nWarden\u2019s Gift (d6): 3 uses per long rest.\n\nSpellcasting: CHA-based, spell save DC 14, spell attack +6.\n\nASI (level 4): Applied to stats.",
+    features:"WARDEN \u2014 HERALD EXPRESSION (Level 8)\n\nWarden\u2019s Gift (d8): 5 uses (CHA mod), regained on a\nSHORT or long rest (Dauntless). Bonus action to give one\ncreature within 60ft a Gift die; they add it to one ability\ncheck, attack roll or saving throw. They may decide after\nrolling the d20 but before the Loremaster says whether it\nsucceeds. A creature can hold only one Gift die at a time.\n\nDauntless (level 5): You regain ALL expended uses of\nWarden\u2019s Gift when you finish a short or long rest.\n\nDistraction (level 6): REACTION \u2014 when a creature you can\nsee within 60 feet makes an attack roll, ability check or\ndamage roll, expend a use of Warden\u2019s Gift, roll the die\nand SUBTRACT it from their roll. You may decide after they\nroll, but before the Loremaster says whether it lands.\nNo effect if the creature cannot hear you or is immune to\nbeing charmed.\n\nExtra Attack (Herald, level 7): You attack twice, instead\nof once, whenever you take the Attack action on your turn.\n\nSongs of Slaying (Herald, level 3): Expend a Warden\u2019s Gift\ndie to give all allies within 30ft an extra d4 on their next\nattack roll. Alternatively, a creature already holding one\nof your Gift dice may roll it and add it to a weapon damage\nroll it has just made.\n\nEver Watchful: After a few hours among locals and passing\ntravellers, make a DC 12 Intelligence (Investigation) check\nwith advantage for all the latest rumours and news.\n\nJack of All Trades: Add +1 (half proficiency) to any ability\ncheck that doesn\u2019t already include your proficiency bonus.\n\nCampfire Tales (d6): You and nearby friendly listeners gain\nan extra 1d6 hit points per Hit Die spent on a short rest.\n\nTalented: History, Persuasion (double proficiency).\n\nBonus Proficiencies (Herald): Medium armour, shields and\nmartial weapons.\n\nCHARACTER IMPROVEMENT (level 8): Charisma 18 \u2192 20 (+5),\ngiving a fifth Warden\u2019s Gift use per short rest.\n\nSHADOW WEAKNESS: Lure of Power",
     equipment:"Broadsword (1d8, finesse)\nDagger\nShortbow and 20 arrows\nLeather jerkin\nTravelling gear\nDulcimer, flute, hand drum\nPlaying card set",
     proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Dulcimer, Flute, Hand Drum, Playing Card Set\nLanguages: Abyssal, Common, Elvish"
   },
