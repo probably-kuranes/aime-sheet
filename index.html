@@ -858,7 +858,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 9;
+var DEFAULTS_VERSION = 10;
 
 function saveChar() {
   var d = getCharData();
@@ -1002,11 +1002,11 @@ var DEFAULTS = {
   },
   dendarian: {
     character_name:'Dendarian', class:'Warrior', player:'Jason',
-    level:'4', prof:'+2', culture:'High Elf of Rivendell', background:'Hunted by Shadow',
+    level:'8', prof:'+3', culture:'High Elf of Rivendell', background:'Hunted by Shadow',
     shadow_weakness:'Lure of Power', standard_of_living:'Prosperous',
-    str:'19', dex:'20', con:'16', int:'10', wis:'16', cha:'15',
+    str:'20', dex:'20', con:'16', int:'10', wis:'16', cha:'16',
     shadow:'0', shadow_perm:'0', ac:'19', speed:'30 ft',
-    hp_max:'40', hp_cur:'40', hp_temp:'0', hd:'4d10', hd_rem:'4',
+    hp_max:'76', hp_cur:'76', hp_temp:'0', hd:'8d10', hd_rem:'8',
     wg_cur:'0', wg_max:'0', wg_die:'d6',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     hd_cur:'0', hd_max:'0', sneak_dice:'0',
@@ -1014,12 +1014,12 @@ var DEFAULTS = {
     sp_str:true, sp_con:true, sp_cor:true,
     skp_athletics:true, skp_insight:true, skp_intimidation:true,
     skp_perception:true, skp_stealth:true, skp_survival:true,
-    atk1_name:'Great Spear Oropher (+2)', atk1_bonus:'+8', atk1_dmg:'1d12+{str}+2',
-    atk2_name:'Dagger', atk2_bonus:'+7', atk2_dmg:'1d4+{dex}',
-    atk3_name:'Longbow', atk3_bonus:'+7', atk3_dmg:'1d8+{dex}',
+    atk1_name:'Great Spear Oropher (+2)', atk1_bonus:'+10', atk1_dmg:'1d12+{str}+4',
+    atk2_name:'Dagger', atk2_bonus:'+8', atk2_dmg:'1d4+{dex}+2',
+    atk3_name:'Great Bow', atk3_bonus:'+8', atk3_dmg:'1d8+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"WARRIOR \u2014 WEAPONMASTER (level 4)\n\nFighting Style \u2014 Defence: +1 AC while wearing armour.\n\nSecond Wind: bonus action, regain 1d10 + Warrior level.\nOnce per short or long rest.\n\nAction Surge (level 2): one additional action on your\nturn. Once per short rest.\n\nWEAPONMASTER (archetype, level 3)\nStyle Focus \u2014 Defence: you ignore disadvantage on Stealth\nchecks caused by your armour. Heavy mail no longer\nhampers you.\nMastery \u2014 Old Enemies (ORCS): you speak Orkish, have\nadvantage on Deception, Intimidation and Insight checks\ninvolving Orcs, and when fighting them you may re-roll\nyour weapon\u2019s damage dice and use either total.\nA second mastery arrives at 7th level.\n\nAC 19 = heavy mail 16 + buckler 2 + Defence 1. NOTE: the\nGreat Spear is two-handed, so while you wield Oropher you\ncannot also use the buckler \u2014 AC 17 with the spear, 19\nwith the dagger and shield. Set the shield to 0 on the\nsheet when you take up the spear.\n\nCHARACTER IMPROVEMENT (level 4): DEX 19\u219220, CON 15\u219216.\n\nHIGH ELF OF RIVENDELL\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nAgainst the Unseen: you perceive creatures of the wraith-\nworld even when they are invisible, and you are immune to\nthe Frightened condition from undead.\nELF-WISE: PROFICIENT IN CORRUPTION CHECKS.\nBeset by Woe: whenever you Heal Corruption you first lose\n1 temporary Shadow and gain 1 PERMANENT Shadow.\nThe Tools of War: daggers, spears, great spears, short\nswords, long swords, short bows, great bows.\nSubtlety of Craft: smith\u2019s tools (blacksmithing).\n\nSHADOW WEAKNESS: Lure of Power",
-    equipment:"Great Spear Oropher (+2 magical spear \u2014 1d12 piercing,\n  reach, two-handed, magical)\nDagger\nGreat bow and 20 arrows\nBuckler (shield, +2 \u2014 not usable with the two-handed spear)\nLeather corslet\nGrey cloak\nBackpack, wineskin\nWhite jewel on a silver chain\n21 silver pennies",
+    features:"WARRIOR \u2014 WEAPONMASTER (level 8)\n\nOROPHER: +10 to hit, 1d12 + 9 damage.\n(1d12 + STR 5 + magic 2 + Fell-handed 2.)\nTWO ATTACKS every Attack action (level 5).\n\nFighting Style \u2014 Defence: +1 AC while wearing armour.\n\nSecond Wind: bonus action, regain 1d10 + Warrior level.\nOnce per short or long rest.\n\nAction Surge (level 2): one additional action on your\nturn. Once per short rest.\n\nWEAPONMASTER (archetype)\nStyle Focus \u2014 Defence: you ignore disadvantage on Stealth\nchecks caused by your armour. Heavy mail no longer\nhampers you.\nMastery \u2014 Old Enemies (ORCS), level 3: you speak Orkish,\nhave advantage on Deception, Intimidation and Insight\nchecks involving Orcs, and when fighting them you may\nre-roll your weapon\u2019s damage dice and use either total.\nMastery \u2014 Force of Will, level 7: Oropher\u2019s damage counts\nas RADIANT, bypassing resistances and immunities that\nwould otherwise blunt a piercing weapon.\n\nCHARACTER IMPROVEMENT (level 4): DEX 19\u219220, CON 15\u219216.\nCHARACTER IMPROVEMENT (level 6): STR 19\u219220, CHA 15\u219216.\nCHARACTER IMPROVEMENT (level 8): VIRTUE instead of scores.\nFell-handed (Open Virtue, 8th level): raise the damage of\nall your successful MELEE attacks by half your proficiency\nbonus, rounded up \u2014 +2 per hit, so +4 a round with two\nattacks. It does not apply to the great bow.\n\nAC 19 = heavy mail 16 + buckler 2 + Defence 1. NOTE: the\nGreat Spear is two-handed, so while you wield Oropher you\ncannot also use the buckler \u2014 AC 17 with the spear, 19\nwith the dagger and shield. Set the shield to 0 on the\nsheet when you take up the spear.\n\nHIGH ELF OF RIVENDELL\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nAgainst the Unseen: you perceive creatures of the wraith-\nworld even when they are invisible, and you are immune to\nthe Frightened condition from undead.\nELF-WISE: PROFICIENT IN CORRUPTION CHECKS.\nBeset by Woe: whenever you Heal Corruption you first lose\n1 temporary Shadow and gain 1 PERMANENT Shadow.\nThe Tools of War: daggers, spears, great spears, short\nswords, long swords, short bows, great bows.\nSubtlety of Craft: smith\u2019s tools (blacksmithing).\n\nSHADOW WEAKNESS: Lure of Power",
+    equipment:"Great Spear Oropher (+2 magical spear \u2014 1d12 piercing,\n  reach, two-handed, magical)\nDagger\nGreat bow and 20 arrows (Fell-handed does not apply to bows)\nBuckler (shield, +2 \u2014 not usable with the two-handed spear)\nLeather corslet\nGrey cloak\nBackpack, wineskin\nWhite jewel on a silver chain\n21 silver pennies",
     proficiencies:"Armour: Light armour, medium armour, heavy armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Calligrapher\u2019s supplies, Dragonchess set, Smith\u2019s tools\nLanguages: Westron (Common), Sindarin, Quenya"
   },
   midril: {
