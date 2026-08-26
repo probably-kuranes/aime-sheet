@@ -346,6 +346,7 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         <div class="res-row">
           <span class="res-lbl">Healing dice (Scholar) &mdash; pool</span>
           <input class="res-box" id="hd_cur" value="0"/>/<input class="res-box" id="hd_max" value="0"/>
+          <span style="font-size:10px;color:#7a5c2e;">Per use: <input class="res-tiny" id="heal_dice" value="1"/>d8</span>
           <button class="roll-btn" onclick="rollHealDie()">Roll heal die</button>
         </div>
         <div class="res-row">
@@ -421,7 +422,7 @@ var SAVES = [
   {id:'con', name:'Constitution',ab:'con'},
   {id:'int', name:'Intelligence',ab:'int'},
   {id:'wis', name:'Wisdom',      ab:'wis'},
-  {id:'cor', name:'Corruption',  ab:'con'},
+  {id:'cor', name:'Corruption',  ab:'wis'},
   {id:'cha', name:'Charisma',    ab:'cha'}
 ];
 
@@ -740,8 +741,10 @@ function rollDie(dieInputId, label) {
 
 function rollHealDie() {
   var wis = getAbMod('wis');
-  var d8 = rollD(8);
-  showResult({ charName: getCharName(), type: 'Healing die', total: d8 + wis, detail: 'd8(' + d8 + ') ' + fmt(wis) + ' Wis' });
+  var n = Math.max(1, parseInt(document.getElementById('heal_dice').value) || 1);
+  var rolls = [], total = 0;
+  for (var i = 0; i < n; i++) { var r = rollD(8); rolls.push(r); total += r; }
+  showResult({ charName: getCharName(), type: 'Healing die', total: total + wis, detail: n + 'd8(' + rolls.join('+') + ') ' + fmt(wis) + ' Wis' });
 }
 
 function rollSecondWind() {
@@ -774,7 +777,7 @@ var ALL_FIELDS = [
 
 var ALL_CHECKS = ['ds1','ds2','ds3','df1','df2','df3','f_inspiration','sw_used','as_used','fury_active','f_unarmoured_defence','cor_advantage'];
 var ALL_SELECTS = ['f_armour','f_shield','fighting_style'];
-var ALL_MISC = ['wg_cur','wg_max','wg_die','hd_cur','hd_max','sneak_dice','mw_dice','fury_bonus','fury_cur','fury_max'];
+var ALL_MISC = ['wg_cur','wg_max','wg_die','hd_cur','hd_max','heal_dice','sneak_dice','mw_dice','fury_bonus','fury_cur','fury_max'];
 
 var SKILL_CHECK_IDS = [];
 SKILLS.forEach(function(sk) { SKILL_CHECK_IDS.push('skp_'+sk.id, 'ske_'+sk.id); });
@@ -855,7 +858,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 6;
+var DEFAULTS_VERSION = 7;
 
 function saveChar() {
   var d = getCharData();
@@ -891,6 +894,7 @@ function clearSheet() {
   document.getElementById('fury_cur').value   = '4';
   document.getElementById('fury_max').value   = '4';
   document.getElementById('wg_die').value     = 'd6';
+  document.getElementById('heal_dice').value  = '1';
 }
 
 var DEFAULTS = {
@@ -898,7 +902,7 @@ var DEFAULTS = {
     character_name:'Ailean, Herald of the Gate', class:'Warden', player:'Andrew',
     level:'8', prof:'+3', culture:'Gondor', background:'Fallen Scion',
     shadow_weakness:'Lure of Power',
-    str:'10', dex:'18', con:'10', int:'16', wis:'16', cha:'20',
+    str:'9', dex:'18', con:'10', int:'16', wis:'15', cha:'20',
     shadow:'0', shadow_perm:'0', ac:'18', speed:'30 ft',
     hp_max:'43', hp_cur:'43', hp_temp:'0', hd:'8d8', hd_rem:'8',
     wg_cur:'5', wg_max:'5', wg_die:'d8',
@@ -908,15 +912,15 @@ var DEFAULTS = {
     sp_dex:true, sp_cha:true,
     skp_animal_handling:true, skp_arcana:true, skp_insight:true,
     skp_investigation:true, skp_lore:true, skp_shadowlore:true,
-    skp_history:true, ske_history:true,
+    skp_history:true, ske_history:true, skp_traditions:true,
     skp_persuasion:true, ske_persuasion:true,
     atk1_name:'Broadsword', atk1_bonus:'+7', atk1_dmg:'1d8+{dex}',
     atk2_name:'Dagger', atk2_bonus:'+7', atk2_dmg:'1d4+{dex}',
     atk3_name:'Shortbow', atk3_bonus:'+7', atk3_dmg:'1d6+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"WARDEN \u2014 HERALD EXPRESSION (Level 8)\n\nWarden\u2019s Gift (d8): 5 uses (CHA mod), regained on a\nSHORT or long rest (Dauntless). Bonus action to give one\ncreature within 60ft a Gift die; they add it to one ability\ncheck, attack roll or saving throw. They may decide after\nrolling the d20 but before the Loremaster says whether it\nsucceeds. A creature can hold only one Gift die at a time.\n\nDauntless (level 5): You regain ALL expended uses of\nWarden\u2019s Gift when you finish a short or long rest.\n\nDistraction (level 6): REACTION \u2014 when a creature you can\nsee within 60 feet makes an attack roll, ability check or\ndamage roll, expend a use of Warden\u2019s Gift, roll the die\nand SUBTRACT it from their roll. You may decide after they\nroll, but before the Loremaster says whether it lands.\nNo effect if the creature cannot hear you or is immune to\nbeing charmed.\n\nExtra Attack (Herald, level 7): You attack twice, instead\nof once, whenever you take the Attack action on your turn.\n\nSongs of Slaying (Herald, level 3): Expend a Warden\u2019s Gift\ndie to give all allies within 30ft an extra d4 on their next\nattack roll. Alternatively, a creature already holding one\nof your Gift dice may roll it and add it to a weapon damage\nroll it has just made.\n\nEver Watchful: After a few hours among locals and passing\ntravellers, make a DC 12 Intelligence (Investigation) check\nwith advantage for all the latest rumours and news.\n\nJack of All Trades: Add +1 (half proficiency) to any ability\ncheck that doesn\u2019t already include your proficiency bonus.\n\nCampfire Tales (d6): You and nearby friendly listeners gain\nan extra 1d6 hit points per Hit Die spent on a short rest.\n\nTalented: History, Persuasion (double proficiency).\n\nBonus Proficiencies (Herald): Medium armour, shields and\nmartial weapons.\n\nCHARACTER IMPROVEMENT (level 8): Charisma 18 \u2192 20 (+5),\ngiving a fifth Warden\u2019s Gift use per short rest.\n\nSHADOW WEAKNESS: Lure of Power",
+    features:"WARDEN \u2014 HERALD EXPRESSION (Level 8)\n\nWarden\u2019s Gift (d8): 5 uses (CHA mod), regained on a\nSHORT or long rest (Dauntless). Bonus action to give one\ncreature within 60ft a Gift die; they add it to one ability\ncheck, attack roll or saving throw. They may decide after\nrolling the d20 but before the Loremaster says whether it\nsucceeds. A creature can hold only one Gift die at a time.\n\nDauntless (level 5): You regain ALL expended uses of\nWarden\u2019s Gift when you finish a short or long rest.\n\nDistraction (level 6): REACTION \u2014 when a creature you can\nsee within 60 feet makes an attack roll, ability check or\ndamage roll, expend a use of Warden\u2019s Gift, roll the die\nand SUBTRACT it from their roll. You may decide after they\nroll, but before the Loremaster says whether it lands.\nNo effect if the creature cannot hear you or is immune to\nbeing charmed.\n\nExtra Attack (Herald, level 7): You attack twice, instead\nof once, whenever you take the Attack action on your turn.\n\nSongs of Slaying (Herald, level 3): Expend a Warden\u2019s Gift\ndie to give all allies within 30ft an extra d4 on their next\nattack roll. Alternatively, a creature already holding one\nof your Gift dice may roll it and add it to a weapon damage\nroll it has just made.\n\nEver Watchful: After a few hours among locals and passing\ntravellers, make a DC 12 Intelligence (Investigation) check\nwith advantage for all the latest rumours and news.\n\nJack of All Trades: Add +1 (half proficiency) to any ability\ncheck that doesn\u2019t already include your proficiency bonus.\n\nCampfire Tales (d6): You and nearby friendly listeners gain\nan extra 1d6 hit points per Hit Die spent on a short rest.\n\nTalented: History, Persuasion (double proficiency).\n\nBonus Proficiencies (Herald): Medium armour, shields and\nmartial weapons.\n\nCHARACTER IMPROVEMENT (level 4): DEX 17\u219218, CHA 17\u219218.\nCHARACTER IMPROVEMENT (level 8): CHA 18\u219220 (+5), a fifth\nWarden\u2019s Gift use per short rest.\n\nMAN OF MINAS TIRITH\nProud Heritage: proficiency in History.\nLanguages: Westron and Sindarin.\nSTARTING VIRTUE: NOT YET CHOSEN \u2014 Captain of Gondor,\nOnward into Battle, Over Dangerous Leagues, Piercing\nSight, Guard of the Tower, or any Open Virtue.\n\nSHADOW WEAKNESS: Lure of Power",
     equipment:"Broadsword (1d8, finesse)\nDagger\nShortbow and 20 arrows\nLeather corslet (light armour, 12 + full Dex)\nShield (+2)\nTravelling gear\nDulcimer, flute, hand drum\nPlaying card set",
-    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Dulcimer, Flute, Hand Drum, Playing Card Set\nLanguages: Abyssal, Common, Elvish"
+    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Dulcimer, Flute, Hand Drum, Playing Card Set\nLanguages: Westron (Common), Sindarin"
   },
   aerandir: {
     character_name:'Aerandir the Ancient', class:'Scholar', player:'Alb',
@@ -926,20 +930,22 @@ var DEFAULTS = {
     str:'13', dex:'14', con:'13', int:'18', wis:'16', cha:'14',
     shadow:'0', shadow_perm:'0', ac:'13', speed:'30 ft',
     hp_max:'27', hp_cur:'27', hp_temp:'0', hd:'4d8', hd_rem:'4',
-    hd_cur:'7', hd_max:'7',
+    hd_cur:'4', hd_max:'4', heal_dice:'2',
     wg_cur:'0', wg_max:'0', wg_die:'d6',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     sneak_dice:'0',
     f_armour:'1', f_shield:'0', fighting_style:'none',
     sp_int:true, sp_wis:true,
-    skp_history:true, skp_insight:true, skp_lore:true,
+    skp_history:true, skp_insight:true,
+    skp_lore:true, ske_lore:true,
+    skp_medicine:true, ske_medicine:true,
     skp_perception:true, skp_stealth:true, skp_survival:true,
     skp_traditions:true,
     atk1_name:'Mattock', atk1_bonus:'+3', atk1_dmg:'2d6+{str}',
     atk2_name:'Belt dagger', atk2_bonus:'+3', atk2_dmg:'1d4+{str}',
     atk3_name:'', atk3_bonus:'', atk3_dmg:'',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"SCHOLAR \u2014 MASTER HEALER (level 4)\n\nHands of a Healer: Stabilise dying creature as action.\nRestore 1 HP with Wisdom (Medicine) check DC 10.\n\nHealing Dice Pool: WIS mod (3) + Scholar level (4) = 7 dice (d6).\nExpend dice to heal allies as an action.\n\nNews from Afar: Advantage on gathering information\nduring journeys and in settlements.\n\nTongues of Many Peoples: Can communicate simple\nconcepts with any creature that has a language.\n\nMaster Healer (level 3): When you use healing dice,\nthe creature regains additional HP equal to your\nWIS modifier (+3). You can stabilise a dying creature\nas a bonus action instead of an action.\n\nASI (level 4): INT +1 (17\u219218), WIS +1 (15\u219216).\n\nWAYWARD ELF TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses (Perception proficiency).\n\nSHADOW WEAKNESS: Lure of Secrets",
+    features:"SCHOLAR \u2014 MASTER HEALER (level 4)\n\nHands of a Healer: one Healing Die per Scholar level, so\n4 dice at level 4. The pool replenishes on a SHORT rest.\n\nSpend a die as an action to touch a creature and restore\n2d8 + WIS. Or tend them for 10 minutes, binding wounds and\ntreating them with herbs, to multiply the dice by your\nproficiency bonus before adding WIS.\n\nOr spend a die to cure one disease, neutralise one poison,\nor remove Frightened, Paralysed, Stunned or Unconscious.\n\nImproved Healing (Master Healer, level 3): you roll 2d8 in\nplace of 1d8 whenever you use Hands of a Healer.\n\nHealing Herbs (Master Healer, level 3): a creature needs\nonly a short rest to recover from disease or poison, and\nathelas, hagweed, kingcup, reedmace and shadow-thorn all\ntake on far more potent forms.\n\nThe Path of Wisdom (level 2): double proficiency bonus on\nMedicine and Lore.\n\nNews from Afar: at the start of each adventuring phase, or\nafter time in a Sanctuary, the Loremaster tells you of one\nor two events of importance somewhere in Wilderland.\n\nTongues of Many Peoples: communicate simple concepts with\nany creature that has a language.\n\nCHARACTER IMPROVEMENT (level 4): INT 17\u219218, WIS 15\u219216.\n\nWAYWARD ELF (Rhovanion Region Guide)\nThe same traits as other Elves of Mirkwood:\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nA Whisper Through the Leaves: proficiency in Stealth,\nadvantage on Stealth in forests, and you may Hide when\nonly lightly obscured by foliage.\nThe Tools of War: daggers, spears, broadswords, short\nswords, short bows.\nSpeed 30 ft. Martial standard of living.\nCultural virtues open to you: The Call of Mirkwood, Deadly\nArchery, Elvish Dreams, The Speakers, Wood-elf Magic.\nCultural heirloom: Wine of the Dark Mountains.\n\nSHADOW WEAKNESS: Lure of Secrets",
     equipment:"Mattock (2d6 piercing, two-handed)\nBelt dagger\nHerbalism kit\nCook\u2019s utensils\nLeather jerkin\nBlue travelling cloak\nTravelling gear, backpack, boots\nBlue blanket, wineskin with home-made mead",
     proficiencies:"Armour: Light armour\nWeapons: Simple weapons\nTools: Herbalism kit, Cook\u2019s utensils\nLanguages: Woodland Elvish, Sindarin, Common;\nSimple conversations in all Men and Elves tongues;\nCommon phrases in all other tongues"
   },
@@ -954,10 +960,10 @@ var DEFAULTS = {
     wg_cur:'0', wg_max:'0', wg_die:'d6',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     hd_cur:'0', hd_max:'0',
-    f_armour:'1', f_shield:'0', fighting_style:'twf',
+    f_armour:'1', f_shield:'0', fighting_style:'none',
     cor_advantage:true,
     sp_dex:true, sp_int:true,
-    skp_deception:true,
+    skp_deception:true, skp_insight:true,
     skp_investigation:true, skp_lore:true,
     skp_nature:true, ske_nature:true,
     skp_perception:true, skp_sleight:true,
@@ -968,9 +974,9 @@ var DEFAULTS = {
     atk2_name:'Shortsword', atk2_bonus:'+7', atk2_dmg:'1d6+{dex}',
     atk3_name:'Shortbow', atk3_bonus:'+7', atk3_dmg:'1d6+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"TREASURE HUNTER (Rogue) \u2014 Level 4\n\nSneak Attack (2d6): Once per turn, extra damage when\nyou have advantage or an ally is within 5ft of target.\n\nExpertise: Stealth, Thieves\u2019 Tools (double proficiency).\n\nThieves\u2019 Cant: Secret rogue language.\n\nCunning Action: Bonus action to Dash, Disengage, or Hide.\n\nTwo-Weapon Fighting style.\n\nASI (level 4): DEX +2 (18\u219220).\n\nHOBBIT TRAITS\nResilient: Advantage on Corruption saving throws.\nHobbit Nimbleness: Move through space of larger creatures.\nNight Vision.\n\nSHADOW WEAKNESS: Dragon-sickness",
+    features:"TREASURE HUNTER \u2014 BURGLAR (level 4)\n\nSneak Attack (2d6): once per turn, extra damage when you\nhave advantage or an ally is within 5 ft of the target.\n\nCunning Action (level 2): bonus action to Dash, Disengage\nor Hide.\n\nExpertise: Stealth and Thieves\u2019 Tools, chosen at level 1.\nNature and Survival are doubled on this sheet too \u2014\ngrandfathered; by the book the next two come at level 6.\n\nNight Vision: within 60 ft you treat dim light as bright\nlight and no light as dim light.\n\nBURGLAR (archetype, level 3)\nThe Shadow of My Pockets: a Theft Misdeed costs you 1\nShadow point instead of the usual 3.\nFilch: when you Sneak Attack in melee you may make a\nDexterity (Sleight of Hand) check on your opponent instead\nof the extra damage (or as well as, if you wish) \u2014\nincluding taking any weapon they are not wielding.\nTreasure Lore: when you are told of a stronghold or ruin,\nor chance across one, ask the Loremaster for three pieces\nof information about the place.\n\nCHARACTER IMPROVEMENT (level 4): DEX 18\u219220.\n\nHOBBIT OF THE SHIRE\nResilient: advantage on Corruption saving throws.\nHobbit Nimbleness: move through the space of any creature\nat least one size larger than you.\nNoble Pursuits: short bows, cook\u2019s utensils, pipes.\nHobbit Elusiveness: proficiency in Stealth.\nFAMILY LINE: NOT YET CHOSEN \u2014 Harfoot (WIS +1,\nUnobtrusive), Stoor (CON +2), or Fallowhide (INT +1, plus\nLore and calligrapher\u2019s supplies).\n\nSHADOW WEAKNESS: Dragon-sickness",
     equipment:"Aicasicil (+2 magical dagger \u2014 1d4 piercing, finesse, light)\nShortsword\nShort bow and 20 arrows\nLeather jerkin\nThieves\u2019 tools\nCook\u2019s utensils, pan flute\nTravelling gear",
-    proficiencies:"Armour: Light armour\nWeapons: Simple weapons, shortswords, rapiers, hand crossbows\nTools: Thieves\u2019 tools, Cook\u2019s utensils, Pan flute\nLanguages: Common, Halfling, Thieves\u2019 Cant"
+    proficiencies:"Armour: Light armour\nWeapons: Simple weapons, shortswords, rapiers, hand crossbows\nTools: Thieves\u2019 tools, Cook\u2019s utensils, Pan flute\nLanguages: Westron (Common)"
   },
   bram: {
     character_name:'Bram Toadfoot', class:'Slayer (Foehammer)', player:'Franziska',
@@ -996,25 +1002,25 @@ var DEFAULTS = {
   },
   dendarian: {
     character_name:'Dendarian', class:'Warrior', player:'Jason',
-    level:'4', prof:'+2', culture:'High Elf', background:'Hunted by Shadow',
+    level:'4', prof:'+2', culture:'High Elf of Rivendell', background:'Hunted by Shadow',
     shadow_weakness:'Lure of Power', standard_of_living:'Prosperous',
-    str:'18', dex:'20', con:'16', int:'10', wis:'16', cha:'15',
+    str:'19', dex:'20', con:'16', int:'10', wis:'16', cha:'15',
     shadow:'0', shadow_perm:'0', ac:'17', speed:'30 ft',
     hp_max:'40', hp_cur:'40', hp_temp:'0', hd:'4d10', hd_rem:'4',
     wg_cur:'0', wg_max:'0', wg_die:'d6',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     hd_cur:'0', hd_max:'0', sneak_dice:'0',
     f_armour:'7', f_shield:'0', fighting_style:'defence',
-    sp_str:true, sp_con:true,
+    sp_str:true, sp_con:true, sp_cor:true,
     skp_athletics:true, skp_insight:true, skp_intimidation:true,
     skp_perception:true, skp_stealth:true, skp_survival:true,
-    atk1_name:'Great Spear Oropher (+2)', atk1_bonus:'+8', atk1_dmg:'1d10+{str}+2',
+    atk1_name:'Great Spear Oropher (+2)', atk1_bonus:'+8', atk1_dmg:'1d12+{str}+2',
     atk2_name:'Dagger', atk2_bonus:'+7', atk2_dmg:'1d4+{dex}',
     atk3_name:'Longbow', atk3_bonus:'+7', atk3_dmg:'1d8+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"WARRIOR (Fighter) \u2014 Level 4\n\nFighting Style: Defence (+1 AC when wearing armour).\n\nSecond Wind: 1/short rest, bonus action to heal 1d10+4.\n\nAction Surge: 1/short rest, take an additional action.\n\nSuperiority Dice: 4d8 per short rest.\nManeuvers enhance attacks in various ways.\n\nASI (level 4): Applied to stats.\n\nHIGH ELF TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses, Against the Unseen (see spirits,\nimmune to frightened), Beset by Woe (shadow stuff),\nEyes of the Elves (Perception proficiency).\n\nSHADOW WEAKNESS: Lure of Power",
-    equipment:"Great Spear Oropher (+2 magical spear \u2014 1d10 piercing,\n  reach, two-handed, magical)\nDagger\nGreat bow and 20 arrows\nBuckler (shield)\nLeather corslet\nGrey cloak\nBackpack, wineskin\nWhite jewel on a silver chain\n21 silver pennies",
-    proficiencies:"Armour: Light armour, medium armour, heavy armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Calligrapher\u2019s supplies, Dragonchess set, Smith\u2019s tools\nLanguages: Common, Dwarvish, Elvish"
+    features:"WARRIOR \u2014 WEAPONMASTER (level 4)\n\nFighting Style \u2014 Defence: +1 AC while wearing armour.\n\nSecond Wind: bonus action, regain 1d10 + Warrior level.\nOnce per short or long rest.\n\nAction Surge (level 2): one additional action on your\nturn. Once per short rest.\n\nWEAPONMASTER (archetype, level 3)\nStyle Focus \u2014 Defence: you ignore disadvantage on Stealth\nchecks caused by your armour. Heavy mail no longer\nhampers you.\nMastery \u2014 Old Enemies: choose a foe. You gain their\nlanguage, have advantage on Deception, Intimidation and\nInsight checks involving them, and when fighting them you\nmay re-roll your weapon\u2019s damage dice and use either\ntotal. A second mastery arrives at 7th level.\n\nCHARACTER IMPROVEMENT (level 4): DEX 19\u219220, CON 15\u219216.\n\nHIGH ELF OF RIVENDELL\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nAgainst the Unseen: you perceive creatures of the wraith-\nworld even when they are invisible, and you are immune to\nthe Frightened condition from undead.\nELF-WISE: PROFICIENT IN CORRUPTION CHECKS.\nBeset by Woe: whenever you Heal Corruption you first lose\n1 temporary Shadow and gain 1 PERMANENT Shadow.\nThe Tools of War: daggers, spears, great spears, short\nswords, long swords, short bows, great bows.\nSubtlety of Craft: one artisan\u2019s tool \u2014 NOT YET CHOSEN.\n\nSHADOW WEAKNESS: Lure of Power",
+    equipment:"Great Spear Oropher (+2 magical spear \u2014 1d12 piercing,\n  reach, two-handed, magical)\nDagger\nGreat bow and 20 arrows\nBuckler (shield)\nLeather corslet\nGrey cloak\nBackpack, wineskin\nWhite jewel on a silver chain\n21 silver pennies",
+    proficiencies:"Armour: Light armour, medium armour, heavy armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Calligrapher\u2019s supplies, Dragonchess set, Smith\u2019s tools\nLanguages: Westron (Common), Sindarin, Quenya"
   },
   midril: {
     character_name:'Midril GreenBlossom', class:'Wanderer', player:'Lucia',
@@ -1023,23 +1029,24 @@ var DEFAULTS = {
     distinctive_quality:'Swift', speciality:'Herb-lore',
     hope:'We are all equal on the road \u2014 we need to rely on each other\u2019s common decency.',
     despair:'If I\u2019ve learned anything on the road it\u2019s that friendships are fleeting and only strong when convenient; in the end we are all alone.',
-    str:'15', dex:'20', con:'16', int:'12', wis:'17', cha:'12',
-    shadow:'0', shadow_perm:'0', ac:'17', speed:'35 ft',
+    str:'15', dex:'20', con:'16', int:'11', wis:'16', cha:'11',
+    shadow:'0', shadow_perm:'0', ac:'17', speed:'30 ft',
     hp_max:'40', hp_cur:'40', hp_temp:'0', hd:'4d10', hd_rem:'4',
     wg_cur:'0', wg_max:'0', wg_die:'d6',
     fury_bonus:'0', fury_max:'0', fury_cur:'0', mw_dice:'0',
     hd_cur:'0', hd_max:'0', sneak_dice:'0',
     f_armour:'2', f_shield:'0', fighting_style:'archery',
-    sp_str:true, sp_dex:true,
+    sp_str:true, sp_con:true,
     skp_animal_handling:true, skp_athletics:true,
+    skp_insight:true, skp_nature:true, skp_shadowlore:true,
     skp_perception:true, skp_stealth:true, skp_survival:true,
-    atk1_name:'Longbow', atk1_bonus:'+9', atk1_dmg:'1d8+{dex}',
-    atk2_name:'Rapier', atk2_bonus:'+7', atk2_dmg:'1d8+{dex}',
+    atk1_name:'Great Bow', atk1_bonus:'+9', atk1_dmg:'1d8+{dex}',
+    atk2_name:'Broadsword', atk2_bonus:'+7', atk2_dmg:'1d8+{dex}',
     atk3_name:'Dagger', atk3_bonus:'+7', atk3_dmg:'1d4+{dex}',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"WANDERER (Ranger) \u2014 Level 4\n\nFighting Style: Archery (+2 to ranged attack rolls).\n\nPrimeval Awareness: Expend a spell slot to sense\naberrations, celestials, dragons, elementals, fey,\nfiends, or undead within 1 mile (6 miles in favoured terrain).\n\nSpellcasting: WIS-based, spell save DC 13, spell attack +5.\n\nFavoured Enemy / Natural Explorer features.\n\nASI (level 4): Applied to stats.\n\nELF OF MIRKWOOD TRAITS\nDarkvision 60 ft, Elvish Dreams (4-hour trance),\nFey Ancestry (advantage vs charm, immune to sleep),\nKeen Senses (Perception proficiency).\nSpeed 35 ft (Wood Elf Fleet of Foot).\nMagical Sleep (Condition: defence).\n\nSHADOW WEAKNESS: Wandering-madness",
-    equipment:"Longbow and 20 arrows\nRapier\nDagger\nLeather corslet\nGrey travelling cloak\nTravelling gear for the season\nBackpack, boots\nShort bow and 20 arrows\nWhite jewel on a chain of silver",
-    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Lute\nLanguages: Celestial, Common, Elvish, Sylvan"
+    features:"WANDERER \u2014 HUNTER OF SHADOWS (level 4)\n\nKnown Lands (level 1): choose 3 regions plus WIS mod more.\nIn a land you know, your proficiency bonus is doubled on\nIntelligence and Wisdom checks using a skill you are\nproficient in; personal Event test DCs drop by 2; as Guide\non a journey wholly within known lands the Peril Rating\ndrops by 2; you have advantage on Corruption saves from\nblighted lands you know; and you cannot become lost.\n\nWays of the Wild (level 1): advantage on Wisdom (Survival)\nchecks when tracking through the wilderness. As the\ncompany\u2019s Guide you fill every vacant travelling role \u2014\nHunter, Scout and Look-out \u2014 at the same time.\n\nFighting Style \u2014 Archery (level 2): +2 to attack rolls\nwith ranged weapons.\n\nNatural Watchfulness (level 2): when in the wilderness\nyour proficiency bonus for Perception is DOUBLED.\n\nRumour of the Earth (level 3): press your ear to the turf.\nOnce between long rests, make a DC 15 Wisdom (Survival)\ncheck for a useful piece of information about a quarry you\nare hunting or a place you are seeking. On 25 or higher\nwhat you learn can seem near-miraculous.\n\nHUNTER OF SHADOWS (archetype, level 3)\nFoe of the Enemy: all your attacks against servants of the\nEnemy inflict +2 damage \u2014 Orcs, Goblins, Spiders, Trolls,\nEvil Men and anything else that willingly serves Mordor.\nYou also gain proficiency in Shadow-lore.\nRevenge follows at 7th level.\n\nCHARACTER IMPROVEMENT (level 4): DEX 18\u219220.\n\nELF OF MIRKWOOD\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nA Whisper Through the Leaves: proficiency in Stealth,\nadvantage on Stealth in forests, and you may Hide when\nonly lightly obscured by foliage.\nThe Tools of War: daggers, spears, broadswords, short\nswords, short bows.\nSpeed 30 ft.\n\nSHADOW WEAKNESS: Wandering-madness",
+    equipment:"Great bow and 20 arrows\nBroadsword\nDagger\nLeather corslet\nGrey travelling cloak\nTravelling gear for the season\nBackpack, boots\nShort bow and 20 arrows\nWhite jewel on a chain of silver",
+    proficiencies:"Armour: Light armour, medium armour, shields\nWeapons: Simple weapons, martial weapons\nTools: Lute\nLanguages: Woodland tongue, Sindarin, Westron (Common)"
   }
 };
 
