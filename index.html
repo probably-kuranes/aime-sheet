@@ -124,6 +124,29 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
 }
 .atk-hint { font-size: 9px; color: #999; font-style: italic; margin-bottom: 5px; }
 
+.features-view {
+  column-count: 2;
+  column-gap: 26px;
+  column-rule: 1px solid #c8a96e44;
+  white-space: pre-wrap;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #3d2f1c;
+  background: #fffdf8;
+  border: 1px solid #c8a96e66;
+  border-radius: 3px;
+  padding: 10px 12px;
+  height: 720px;
+  overflow: auto;
+}
+.features-edit {
+  display: none;
+  min-height: 720px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.feat-bar { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+@media (max-width: 900px) { .features-view { column-count: 1; height: 460px; } }
 .res-row {
   display: flex; align-items: center; gap: 5px; padding: 4px 0;
   border-bottom: 1px dotted #c8a96e33; flex-wrap: wrap; font-size: 11px;
@@ -225,8 +248,8 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         <div class="dmg-row"><span class="dmg-lbl">Melee (Str)</span><span class="dmg-val" id="d_str">+0</span></div>
         <div class="dmg-row"><span class="dmg-lbl">Finesse / ranged (Dex)</span><span class="dmg-val" id="d_dex">+0</span></div>
         <div class="dmg-row"><span class="dmg-lbl">Duelling (one-hand +2)</span><span class="dmg-val" id="d_duel">+0</span></div>
-        <div class="dmg-row dmg-fury"><span class="dmg-lbl">Fury (Str + fury bonus)</span><span class="dmg-val" id="d_fury">+0</span></div>
-        <div class="fury-box">
+        <div class="dmg-row dmg-fury" data-res="fury"><span class="dmg-lbl">Fury (Str + fury bonus)</span><span class="dmg-val" id="d_fury">+0</span></div>
+        <div class="fury-box" data-res="fury">
           <div class="fury-toggle">
             <input type="checkbox" id="fury_active" onchange="recalc()"/>
             <span class="fury-lbl">Battle-fury active</span>
@@ -335,38 +358,38 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
         </div>
       </div>
 
-      <div class="sec">
+      <div class="sec" id="class-res-sec">
         <div class="sec-lbl">Class resources</div>
-        <div class="res-row">
+        <div class="res-row" data-res="wg">
           <span class="res-lbl">Warden's gift &mdash; uses</span>
           <input class="res-box" id="wg_cur" value="0"/>/<input class="res-box" id="wg_max" value="0"/>
           <span style="font-size:10px;color:#7a5c2e;">Die: <input class="res-tiny" id="wg_die" value="d6"/></span>
           <button class="roll-btn" onclick="rollDie('wg_die', &quot;Warden's Gift&quot;)">Roll gift die</button>
         </div>
-        <div class="res-row">
+        <div class="res-row" data-res="heal">
           <span class="res-lbl">Healing dice (Scholar) &mdash; pool</span>
           <input class="res-box" id="hd_cur" value="0"/>/<input class="res-box" id="hd_max" value="0"/>
           <span style="font-size:10px;color:#7a5c2e;">Per use: <input class="res-tiny" id="heal_dice" value="1"/>d8</span>
           <button class="roll-btn" onclick="rollHealDie()">Roll heal die</button>
         </div>
-        <div class="res-row">
+        <div class="res-row" data-res="sw">
           <span class="res-lbl">Second wind (Warrior)</span>
           <input type="checkbox" id="sw_used"/>
           <span style="font-size:10px;color:#7a5c2e;">Used</span>
           <button class="roll-btn" onclick="rollSecondWind()">Roll</button>
         </div>
-        <div class="res-row">
+        <div class="res-row" data-res="as">
           <span class="res-lbl">Action surge (Warrior)</span>
           <input type="checkbox" id="as_used"/>
           <span style="font-size:10px;color:#7a5c2e;">Used</span>
         </div>
-        <div class="res-row">
+        <div class="res-row" data-res="sneak">
           <span class="res-lbl">Sneak attack</span>
           <input class="res-box" id="sneak_dice" value="1"/>
           <span style="font-size:10px;color:#7a5c2e;">d6</span>
           <button class="roll-btn" onclick="rollSneak()">Roll</button>
         </div>
-        <div class="res-row">
+        <div class="res-row" data-res="mw">
           <span class="res-lbl">Mortal wound (Slayer)</span>
           <input class="res-box" id="mw_dice" value="0"/>
           <span style="font-size:10px;color:#7a5c2e;">d12</span>
@@ -376,7 +399,13 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
 
       <div class="sec">
         <div class="sec-lbl">Features, traits &amp; virtues</div>
-        <div class="f"><textarea id="f_features" style="min-height:100px" placeholder="Class features, subclass abilities, cultural virtues, background features..."></textarea></div>
+        <div class="f">
+          <div class="feat-bar">
+            <button class="roll-btn" id="feat_edit_btn" onclick="toggleFeatEdit()">Edit</button>
+          </div>
+          <div id="features_view" class="features-view"></div>
+          <textarea id="f_features" class="features-edit" oninput="syncFeaturesView()" placeholder="Class features, subclass abilities, cultural virtues, background features..."></textarea>
+        </div>
       </div>
 
       <div class="sec">
@@ -493,7 +522,7 @@ function buildSkills() {
   SKILLS.forEach(function(sk) {
     var row = document.createElement('div');
     row.className = 'skill-row' + (sk.sep ? ' thieves-sep' : '');
-    var abLabel = sk.ab.charAt(0).toUpperCase() + sk.ab.slice(0,3);
+    var abLabel = sk.ab.charAt(0).toUpperCase() + sk.ab.slice(1);
     row.innerHTML =
       '<input type="checkbox" id="skp_' + sk.id + '" onchange="recalc()" style="width:13px;height:13px;flex-shrink:0"/>' +
       '<input type="checkbox" id="ske_' + sk.id + '" onchange="recalc()" style="width:13px;height:13px;flex-shrink:0"/>' +
@@ -601,6 +630,29 @@ function recalc() {
 
   var ppEl = document.getElementById('passive_perc');
   if (ppEl) ppEl.textContent = 10 + percBonus;
+
+  syncFeaturesView();
+}
+
+function syncFeaturesView() {
+  var v = document.getElementById('features_view');
+  var t = document.getElementById('f_features');
+  if (v && t) v.textContent = t.value;
+}
+
+function toggleFeatEdit() {
+  var v = document.getElementById('features_view');
+  var t = document.getElementById('f_features');
+  var b = document.getElementById('feat_edit_btn');
+  var editing = t.style.display === 'block';
+  if (editing) {
+    t.style.display = 'none'; v.style.display = ''; b.textContent = 'Edit';
+    syncFeaturesView();
+  } else {
+    syncFeaturesView();
+    v.style.display = 'none'; t.style.display = 'block'; b.textContent = 'Done';
+    t.focus();
+  }
 }
 
 function rollD(sides) { return Math.floor(Math.random() * sides) + 1; }
@@ -858,7 +910,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 10;
+var DEFAULTS_VERSION = 11;
 
 function saveChar() {
   var d = getCharData();
@@ -1050,6 +1102,29 @@ var DEFAULTS = {
   }
 };
 
+var CHAR_RESOURCES = {
+  ailean:    ['wg'],
+  aerandir:  ['heal'],
+  bodo:      ['sneak'],
+  bram:      ['fury'],
+  dendarian: ['sw','as'],
+  midril:    []
+};
+
+function applyResourceVisibility(charId) {
+  var show = CHAR_RESOURCES[charId] || [];
+  var anyRow = false;
+  var nodes = document.querySelectorAll('[data-res]');
+  for (var i = 0; i < nodes.length; i++) {
+    var el = nodes[i];
+    var on = show.indexOf(el.getAttribute('data-res')) !== -1;
+    el.style.display = on ? '' : 'none';
+    if (on && el.className.indexOf('res-row') !== -1) anyRow = true;
+  }
+  var sec = document.getElementById('class-res-sec');
+  if (sec) sec.style.display = anyRow ? '' : 'none';
+}
+
 function applyDefaults(charId) {
   var d = DEFAULTS[charId] || {};
   Object.keys(d).forEach(function(k) {
@@ -1082,6 +1157,7 @@ function switchChar(charId) {
   currentChar = charId;
   clearSheet();
   applyDefaults(charId);
+  applyResourceVisibility(charId);
   var saved = loadSaved(charId);
   if (saved) { applyCharData(saved); }
   recalc();
@@ -1091,6 +1167,7 @@ buildSaves();
 buildSkills();
 buildAttacks();
 applyDefaults('ailean');
+applyResourceVisibility('ailean');
 var initSaved = loadSaved('ailean');
 if (initSaved) { applyCharData(initSaved); }
 recalc();
