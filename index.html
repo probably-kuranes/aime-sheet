@@ -147,6 +147,17 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
 }
 .feat-bar { display: flex; justify-content: flex-end; margin-bottom: 4px; }
 @media (max-width: 900px) { .features-view { column-count: 1; height: 460px; } }
+.fury-note {
+  font-size: 9.5px;
+  line-height: 1.4;
+  font-weight: bold;
+  color: #7a1f1f;
+  background: #f6e4d8;
+  border: 1px solid #b5563f55;
+  border-radius: 3px;
+  padding: 4px 6px;
+  margin: 4px 0 2px;
+}
 .res-row {
   display: flex; align-items: center; gap: 5px; padding: 4px 0;
   border-bottom: 1px dotted #c8a96e33; flex-wrap: wrap; font-size: 11px;
@@ -254,6 +265,7 @@ body { font-family: Georgia, serif; background: #1a1208; color: #2c1f0f; min-hei
             <input type="checkbox" id="fury_active" onchange="recalc()"/>
             <span class="fury-lbl">Battle-fury active</span>
           </div>
+          <div class="fury-note" id="fury_note" style="display:none">RESISTANT to bludgeoning, piercing &amp; slashing &bull; ADVANTAGE on Str checks &amp; Str saves &bull; lasts 1 minute</div>
           <div class="fury-inputs">
             <span>Fury dmg bonus:</span>
             <input id="fury_bonus" value="2" oninput="recalc()"/>
@@ -603,6 +615,8 @@ function recalc() {
   document.getElementById('d_dex').textContent  = fmt(abs.dex);
   document.getElementById('d_duel').textContent = fmt(abs.str + (style === 'duelling' ? 2 : 0));
   document.getElementById('d_fury').textContent = fmt(abs.str + (furyOn ? furyBonus : 0));
+  var furyNote = document.getElementById('fury_note');
+  if (furyNote) furyNote.style.display = furyOn ? 'block' : 'none';
 
   SAVES.forEach(function(s) {
     var base = abs[s.ab] || 0;
@@ -910,7 +924,7 @@ function resetChar() {
   setTimeout(function() { st.textContent = ''; }, 2000);
 }
 
-var DEFAULTS_VERSION = 11;
+var DEFAULTS_VERSION = 12;
 
 function saveChar() {
   var d = getCharData();
@@ -997,7 +1011,7 @@ var DEFAULTS = {
     atk2_name:'Belt dagger', atk2_bonus:'+5', atk2_dmg:'1d4+{str}',
     atk3_name:'', atk3_bonus:'', atk3_dmg:'',
     atk4_name:'', atk4_bonus:'', atk4_dmg:'',
-    features:"SCHOLAR \u2014 MASTER HEALER (level 8)\n\nHands of a Healer: one Healing Die per Scholar level, so\n8 dice at level 8. The pool replenishes on a SHORT rest.\n\nSpend a die as an action to touch a creature and restore\n2d8 + WIS. Or tend them for 10 minutes, binding wounds and\ntreating them with herbs, to multiply the dice by your\nproficiency bonus before adding WIS.\n\nMATTOCK (Loremaster ruling): counts as your simple weapon,\nso you are proficient. It still functions as a normal\nmattock \u2014 2d6 piercing, heavy, two-handed.\n\nOr spend a die to cure one disease, neutralise one poison,\nor remove Frightened, Paralysed, Stunned or Unconscious.\n\nImproved Healing (Master Healer, level 3): you roll 2d8 in\nplace of 1d8 whenever you use Hands of a Healer.\n\nHealing Herbs (Master Healer, level 3): a creature needs\nonly a short rest to recover from disease or poison, and\nathelas, hagweed, kingcup, reedmace and shadow-thorn all\ntake on far more potent forms.\n\nHealer\u2019s Staunching Song (Master Healer, level 7):\nduring a short rest you may perform this song for up to 8\ncompanions (your Scholar levels). Each of them recovers\none Hit Die worth of damage + their CON modifier WITHOUT\nspending any of their own Hit Dice.\n\nWebs of Deceit (level 5): you can tell when someone is\nlying to you, and see through disguises and deceptions.\n\nShadow of the Past (level 6): remind another Player-hero\nof a relevant tale from the history of their people and\nthey gain a Scholarly Inspiration die (d6) to add to any\nroll. Once per long rest.\n\nThe Path of Wisdom (level 2): double proficiency bonus on\nMedicine and Lore.\n\nNews from Afar: at the start of each adventuring phase, or\nafter time in a Sanctuary, the Loremaster tells you of one\nor two events of importance somewhere in Wilderland.\n\nTongues of Many Peoples: communicate simple concepts with\nany creature that has a language.\n\nCHARACTER IMPROVEMENT (level 4): INT 17\u219218, WIS 15\u219216.\nCHARACTER IMPROVEMENT (level 8): STR 13\u219214, CON 13\u219214.\n\nWAYWARD ELF (Rhovanion Region Guide)\nThe same traits as other Elves of Mirkwood:\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nA Whisper Through the Leaves: proficiency in Stealth,\nadvantage on Stealth in forests, and you may Hide when\nonly lightly obscured by foliage.\nThe Tools of War: daggers, spears, broadswords, short\nswords, short bows.\nSpeed 30 ft. Martial standard of living.\n\nSHADOW WEAKNESS: Lure of Secrets",
+    features:"SCHOLAR \u2014 MASTER HEALER (level 8)\n\nHands of a Healer: one Healing Die per Scholar level, so\n8 dice at level 8. The pool replenishes on a SHORT rest.\n\nSpend a die as an action to touch a creature and restore\n2d8 + WIS. Or tend them for 10 minutes, binding wounds and\ntreating them with herbs, to multiply the dice by your\nproficiency bonus before adding WIS.\n\nOr spend a die to cure one disease, neutralise one poison,\nor remove Frightened, Paralysed, Stunned or Unconscious.\n\nImproved Healing (Master Healer, level 3): you roll 2d8 in\nplace of 1d8 whenever you use Hands of a Healer.\n\nHealing Herbs (Master Healer, level 3): a creature needs\nonly a short rest to recover from disease or poison, and\nathelas, hagweed, kingcup, reedmace and shadow-thorn all\ntake on far more potent forms.\n\nHealer\u2019s Staunching Song (Master Healer, level 7):\nduring a short rest you may perform this song for up to 8\ncompanions (your Scholar levels). Each of them recovers\none Hit Die worth of damage + their CON modifier WITHOUT\nspending any of their own Hit Dice.\n\nWebs of Deceit (level 5): you can tell when someone is\nlying to you, and see through disguises and deceptions.\n\nShadow of the Past (level 6): remind another Player-hero\nof a relevant tale from the history of their people and\nthey gain a Scholarly Inspiration die (d6) to add to any\nroll. Once per long rest.\n\nThe Path of Wisdom (level 2): double proficiency bonus on\nMedicine and Lore.\n\nNews from Afar: at the start of each adventuring phase, or\nafter time in a Sanctuary, the Loremaster tells you of one\nor two events of importance somewhere in Wilderland.\n\nTongues of Many Peoples: communicate simple concepts with\nany creature that has a language.\n\nCHARACTER IMPROVEMENT (level 4): INT 17\u219218, WIS 15\u219216.\nCHARACTER IMPROVEMENT (level 8): STR 13\u219214, CON 13\u219214.\n\nWAYWARD ELF (Rhovanion Region Guide)\nThe same traits as other Elves of Mirkwood:\nNight Vision 60 ft.\nElvish Dreams: 4 hours of waking trance rests you fully.\nThe Eyes of Elves: proficiency in Perception.\nA Whisper Through the Leaves: proficiency in Stealth,\nadvantage on Stealth in forests, and you may Hide when\nonly lightly obscured by foliage.\nThe Tools of War: daggers, spears, broadswords, short\nswords, short bows.\nSpeed 30 ft. Martial standard of living.\n\nMATTOCK (Loremaster ruling): counts as your simple weapon,\nso you are proficient. It still functions as a normal\nmattock \u2014 2d6 piercing, heavy, two-handed.\n\nSHADOW WEAKNESS: Lure of Secrets",
     equipment:"Mattock (2d6 piercing, two-handed)\nBelt dagger\nHerbalism kit\nCook\u2019s utensils\nLeather jerkin\nBlue travelling cloak\nTravelling gear, backpack, boots\nBlue blanket, wineskin with home-made mead",
     proficiencies:"Armour: Light armour\nWeapons: Simple weapons\nTools: Herbalism kit, Cook\u2019s utensils\nLanguages: Woodland Elvish, Sindarin, Common;\nSimple conversations in all Men and Elves tongues;\nCommon phrases in all other tongues"
   },
